@@ -7,6 +7,7 @@ import ru.practicum.shareit.user.model.User;
 
 import javax.validation.ValidationException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -54,14 +55,42 @@ public class ItemRepositoryImpl implements ItemRepository {
                     itemOrig.setAvailable(item.getAvailable());
                 }
             } else {
-                throw new IllegalArgumentException("пользователь не является собственником указанной вещи");
+                throw new IllegalArgumentException("Пользователь не является собственником указанной вещи");
             }
         } else {
-            throw new ValidationException("вещь с данным id не существует");
+            throw new ValidationException("Вещь с данным id не существует");
         }
         Item itemUpd = items.get(itemId);
         log.trace("Вещь с id = {} обновлена", itemId);
         return  itemUpd;
+    }
+
+    @Override
+    public void delete(Integer id) {
+        log.info("Удаление вещи с id = {}", id);
+    }
+
+    @Override
+    public List<Item> search(String text) {
+        log.info("Поиск вещи по тексту");
+        if (!text.isBlank()) {
+            String textLow = text.toLowerCase();
+            return items.values().stream()
+                    .filter(u -> u.getAvailable() &&
+                            (u.getName().toLowerCase().contains(textLow) ||
+                                    u.getDescription().toLowerCase().contains(textLow)))
+                    .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public List<Item> getAllItemUsers(Integer userId) {
+        log.trace("вывод всех вещей пользователя");
+        return items.values().stream()
+                .filter(u -> u.getOwner().getId().equals(userId))
+                .collect(Collectors.toList());
     }
 
     private boolean isValidId(Integer id) {

@@ -10,6 +10,9 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -36,5 +39,31 @@ class ItemServiceImpl implements ItemService {
         User user = userRepository.get(userId);
         Item item =  itemRepository.update(user.getId(),itemId,ItemMapper.fromItemDto(itemDto));
         return ItemMapper.toItemDto(item);
+    }
+
+    @Override
+    public void delete(Integer id) {
+        itemRepository.delete(id);
+    }
+
+    @Override
+    public List<ItemDto> getAllItemUsers(Integer userId) {
+        User user = userRepository.get(userId);
+        List<Item> items = itemRepository.getAllItemUsers(user.getId());
+        List<ItemDto> itemsDto = new ArrayList<>();
+        for (Item i : items) {
+            itemsDto.add(ItemMapper.toItemDto(i));
+        }
+        return itemsDto;
+    }
+
+    @Override
+    public List<ItemDto> search(String text) {
+        List<Item> items = itemRepository.search(text);
+        List<ItemDto> itemsDto = new ArrayList<>();
+        for (Item i : items) {
+            itemsDto.add(ItemMapper.toItemDto(i));
+        }
+        return itemsDto;
     }
 }
