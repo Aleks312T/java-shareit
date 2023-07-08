@@ -21,13 +21,20 @@ class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto create(Integer userId, ItemDto itemDto) {
         User user = userRepository.get(userId);
-        Item item = itemRepository.create(user,ItemMapper.fromDto(itemDto));
+        Item item = itemRepository.create(user,ItemMapper.fromItemDto(itemDto));
         return ItemMapper.toItemDto(item);
     }
 
     @Override
     public ItemDto get(Integer id) {
         Item item = itemRepository.get(id);
+        return ItemMapper.toItemDto(item);
+    }
+
+    @Override
+    public ItemDto update(Integer userId, Integer itemId, ItemDto itemDto) {
+        User user = userRepository.get(userId);
+        Item item =  itemRepository.update(user.getId(),itemId,ItemMapper.fromItemDto(itemDto));
         return ItemMapper.toItemDto(item);
     }
 }

@@ -16,7 +16,7 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public Item create(User user, Item item) {
-        log.trace("Создание новой вещи");
+        log.info("Создание новой вещи");
         item.setId(itemId++);
         item.setOwner(user);
         items.put(item.getId(),item);
@@ -25,20 +25,20 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public Item get(Integer id) {
-        log.trace("Получение вещи с id = {}", id);
+        log.info("Получение вещи с id = {}", id);
         if (id == null) {
             throw new NullPointerException("Id вещи указан неверно");
         } else if (!items.containsKey(id)) {
             throw new IllegalArgumentException("Вещь с Id № " + id + " не найдена");
         }
         Item item = items.get(id);
-        log.debug("Вещь с id №{} получена", id);
-        return  item;
+        log.trace("Вещь с id = {} получена", id);
+        return item;
     }
 
     @Override
     public Item update(Integer userId, Integer itemId, Item item) {
-        log.trace("обновление вещи");
+        log.info("Обновление вещи");
         if (!isValidId(itemId)) {
             Item itemOrig = items.get(itemId);
             if (itemOrig.getOwner().getId().equals(userId)) {
@@ -60,13 +60,13 @@ public class ItemRepositoryImpl implements ItemRepository {
             throw new ValidationException("вещь с данным id не существует");
         }
         Item itemUpd = items.get(itemId);
-        log.debug("Вещь с id №{} обновлена", itemId);
+        log.trace("Вещь с id = {} обновлена", itemId);
         return  itemUpd;
     }
 
     private boolean isValidId(Integer id) {
         if (id == null || id == 0) {
-            throw new ValidationException("вещь имеет ошибочное id");
-        } else return !items.containsKey(id); // если не найден - true; если найден - false
+            throw new ValidationException("У вещи некорректный id");
+        } else return !items.containsKey(id);
     }
 }

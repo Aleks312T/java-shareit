@@ -12,4 +12,6 @@ public interface UserRepository {
     List<User> getAll();
 
     User update(Integer id,User user);
+
+    void delete(Integer id);
 }
