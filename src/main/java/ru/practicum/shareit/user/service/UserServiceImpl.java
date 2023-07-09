@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(Integer id) {
         List<Item> empty = new ArrayList<>();
-        if(itemRepository.getAllItemUsers(id).equals(empty))
+        if (itemRepository.getAllItemUsers(id).equals(empty))
             userRepository.delete(id);
         else
             throw new RuntimeException("Нельзя удалить пользователя, у которого есть вещи");
