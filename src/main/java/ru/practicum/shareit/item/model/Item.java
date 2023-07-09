@@ -22,6 +22,7 @@ public class Item {
     private Boolean available;
     private User owner;
     private ItemRequest request;
+
     public Item(Integer id, String name, String description, Boolean available) {
         this.id = id;
         this.name = name;

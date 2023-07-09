@@ -19,7 +19,7 @@ public class UserRepositoryImpl implements UserRepository {
     public User create(User user) {
         log.info("Добавление пользователя");
 
-        if(!isValidEmail(user.getEmail()))
+        if (!isValidEmail(user.getEmail()))
             throw new ValidationException("У пользователя некорректный email");
 
         user.setId(idUser++);
@@ -39,12 +39,12 @@ public class UserRepositoryImpl implements UserRepository {
         log.info("Обновление пользователя");
 
         isValidId(id);
-        if(!users.containsKey(id))
+        if (!users.containsKey(id))
             throw new ObjectNotFoundException("Пользователь с Id = " + id + " не найден");
 
         User newUser = users.get(id);
         if (user.getEmail() != null) {
-            if(isValidEmail(user.getEmail()) || newUser.getEmail().equals(user.getEmail()))
+            if (isValidEmail(user.getEmail()) || newUser.getEmail().equals(user.getEmail()))
                 newUser.setEmail(user.getEmail());
             else
                 throw new ValidationException("У пользователя некорректный email");
@@ -80,7 +80,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     private boolean isValidEmail(String email) {
-        if(email == null || email.equals(""))
+        if (email == null || email.equals(""))
             throw new ValidationException("У пользователя некорректный email");
         else {
             return users.values().stream()
