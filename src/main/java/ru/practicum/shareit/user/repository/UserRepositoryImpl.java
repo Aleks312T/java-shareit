@@ -24,7 +24,6 @@ public class UserRepositoryImpl implements UserRepository {
 
         user.setId(idUser++);
         users.put(user.getId(), user);
-
         log.trace("Пользователь создан");
         return user;
     }
