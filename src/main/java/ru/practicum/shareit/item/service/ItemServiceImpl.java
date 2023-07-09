@@ -36,8 +36,9 @@ class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto update(Integer userId, Integer itemId, ItemDto itemDto) {
+
         User user = userRepository.get(userId);
-        Item item =  itemRepository.update(user.getId(),itemId,ItemMapper.fromItemDto(itemDto));
+        Item item = itemRepository.update(user.getId(), itemId, ItemMapper.fromItemDto(itemDto));
         return ItemMapper.toItemDto(item);
     }
 
@@ -51,8 +52,8 @@ class ItemServiceImpl implements ItemService {
         User user = userRepository.get(userId);
         List<Item> items = itemRepository.getAllItemUsers(user.getId());
         List<ItemDto> itemsDto = new ArrayList<>();
-        for (Item i : items) {
-            itemsDto.add(ItemMapper.toItemDto(i));
+        for (Item item : items) {
+            itemsDto.add(ItemMapper.toItemDto(item));
         }
         return itemsDto;
     }
@@ -61,8 +62,8 @@ class ItemServiceImpl implements ItemService {
     public List<ItemDto> search(String text) {
         List<Item> items = itemRepository.search(text);
         List<ItemDto> itemsDto = new ArrayList<>();
-        for (Item i : items) {
-            itemsDto.add(ItemMapper.toItemDto(i));
+        for (Item item : items) {
+            itemsDto.add(ItemMapper.toItemDto(item));
         }
         return itemsDto;
     }

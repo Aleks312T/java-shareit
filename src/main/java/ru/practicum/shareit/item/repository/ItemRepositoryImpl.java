@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.practicum.shareit.exceptions.ObjectNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -21,6 +22,7 @@ public class ItemRepositoryImpl implements ItemRepository {
         item.setId(itemId++);
         item.setOwner(user);
         items.put(item.getId(),item);
+        log.trace("Вещь создана");
         return item;
     }
 
@@ -38,31 +40,34 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public Item update(Integer userId, Integer itemId, Item item) {
+    public Item update(Integer userId, Integer itemId, Item newItem) {
         log.info("Обновление вещи");
         if (!isValidId(itemId)) {
-            Item itemOrig = items.get(itemId);
-            if (itemOrig.getOwner().getId().equals(userId)) {
-                if (item.getName() != null) {
-                    itemOrig.setName(item.getName());
+            Item oldItem = items.get(itemId);
+            if (oldItem.getOwner().getId().equals(userId)) {
+                if (newItem.getName() != null) {
+                    oldItem.setName(newItem.getName());
                 }
 
-                if (item.getDescription() != null) {
-                    itemOrig.setDescription(item.getDescription());
+                if (newItem.getDescription() != null) {
+                    oldItem.setDescription(newItem.getDescription());
                 }
 
-                if (item.getAvailable() != null) {
-                    itemOrig.setAvailable(item.getAvailable());
+                if (newItem.getAvailable() != null) {
+                    oldItem.setAvailable(newItem.getAvailable());
                 }
             } else {
-                throw new IllegalArgumentException("Пользователь не является собственником указанной вещи");
+                throw new ObjectNotFoundException("Пользователь не является собственником указанной вещи");
+                //По логике, должен стоять IllegalArgumentException, но Postman требует код 404
+                //Я чего-то не понимаю?
+                //throw new IllegalArgumentException("Пользователь не является собственником указанной вещи");
             }
         } else {
-            throw new ValidationException("Вещь с данным id не существует");
+            throw new ObjectNotFoundException("Вещь с данным id не существует");
         }
         Item itemUpd = items.get(itemId);
         log.trace("Вещь с id = {} обновлена", itemId);
-        return  itemUpd;
+        return itemUpd;
     }
 
     @Override
@@ -87,7 +92,7 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public List<Item> getAllItemUsers(Integer userId) {
-        log.trace("вывод всех вещей пользователя");
+        log.info("Вывод всех вещей пользователя");
         return items.values().stream()
                 .filter(u -> u.getOwner().getId().equals(userId))
                 .collect(Collectors.toList());
