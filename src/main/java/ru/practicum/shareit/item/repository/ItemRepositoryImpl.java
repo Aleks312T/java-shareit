@@ -73,6 +73,11 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public void delete(Integer id) {
         log.info("Удаление вещи с id = {}", id);
+        if (!isValidId(itemId)) {
+            items.remove(id);
+        } else {
+            throw new ObjectNotFoundException("Вещь с данным id не существует");
+        }
     }
 
     @Override
@@ -92,7 +97,7 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public List<Item> getAllItemUsers(Integer userId) {
-        log.info("Вывод всех вещей пользователя");
+        log.info("Вывод всех вещей пользователя с id = {}", userId);
         return items.values().stream()
                 .filter(u -> u.getOwner().getId().equals(userId))
                 .collect(Collectors.toList());

@@ -2,6 +2,8 @@ package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -14,6 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
 
     @Override
     public UserDto create(UserDto userDto) {
@@ -45,6 +48,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void delete(Integer id) {
-        userRepository.delete(id);
+        List<Item> empty = new ArrayList<>();
+        if(itemRepository.getAllItemUsers(id).equals(empty))
+            userRepository.delete(id);
+        else
+            throw new RuntimeException("Нельзя удалить пользователя, у которого есть вещи");
+
     }
 }
