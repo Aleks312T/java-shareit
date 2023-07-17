@@ -1,58 +1,80 @@
 package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.exceptions.ObjectNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import java.util.ArrayList;
+import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final ItemRepository itemRepository;
 
+    @Transactional
     @Override
     public UserDto create(UserDto userDto) {
-        User user = userRepository.create(UserMapper.fromUserDto(userDto));
+        User user = userRepository.save(UserMapper.fromUserDto(userDto));
         return UserMapper.toUserDto(user);
     }
 
+    @Transactional
     @Override
-    public UserDto get(Integer id) {
-        User user = userRepository.get(id);
-        return UserMapper.toUserDto(user);
+    public UserDto get(Long id) {
+        Optional<User> user = userRepository.findById(id);
+        if(user.isPresent())
+            return UserMapper.toUserDto(user.get());
+        else {
+            throw new ObjectNotFoundException("Пользователь с id = " + id + " не найден");
+        }
     }
 
+    @Transactional
     @Override
     public List<UserDto> getAll() {
-        List<User> users = userRepository.getAll();
-        List<UserDto> usersDto = new ArrayList<>();
-        for (User user : users) {
-            usersDto.add(UserMapper.toUserDto(user));
+        return userRepository.findAll().stream()
+                .map(UserMapper::toUserDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    @Override
+    public UserDto update(Long id,UserDto userDto) {
+        Optional<User> user = userRepository.findById(id);
+        if(user.isEmpty())
+            throw new ObjectNotFoundException("Пользователь с id = " + id + " не найден");
+        else {
+            User newUser = user.get();
+            if (userDto.getName() != null) {
+                newUser.setName(userDto.getName());
+            }
+            if (userDto.getEmail() != null) {
+                newUser.setEmail(userDto.getEmail());
+            }
+            return UserMapper.toUserDto(userRepository.save(newUser));
         }
-        return usersDto;
+
     }
 
+    @Transactional
     @Override
-    public UserDto update(Integer id,UserDto userDto) {
-        User user = userRepository.update(id,UserMapper.fromUserDto(userDto));
-        return UserMapper.toUserDto(user);
-    }
-
-    @Override
-    public void delete(Integer id) {
-        List<Item> empty = new ArrayList<>();
-        if (itemRepository.getAllItemUsers(id).equals(empty))
-            userRepository.delete(id);
-        else
-            throw new RuntimeException("Нельзя удалить пользователя, у которого есть вещи");
-
+    public void delete(Long id) {
+        //TODO вернуть потом эту проверку
+//        List<Item> empty = new ArrayList<>();
+//        if (itemRepository.getAllItemUsers(id).equals(empty))
+//            userRepository.delete(id);
+//        else
+//            throw new RuntimeException("Нельзя удалить пользователя, у которого есть вещи");
+        userRepository.deleteById(id);
     }
 }

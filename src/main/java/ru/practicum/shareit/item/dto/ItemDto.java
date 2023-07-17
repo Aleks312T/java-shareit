@@ -11,11 +11,13 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @Builder
 public class ItemDto {
-    private Integer id;
+    private Long id;
     @NotBlank
     private String name;
     @NotBlank
     private String description;
     @NotNull
     private Boolean available;
+
+    //TODO добавить комменты в dto
 }
