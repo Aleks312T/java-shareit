@@ -24,16 +24,25 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserDto create(UserDto userDto) {
-        User user = userRepository.save(UserMapper.fromUserDto(userDto));
+        log.debug("Вызов метода create");
+        User user = UserMapper.fromUserDto(userDto);
+        if(user.getEmail() == null) {
+            throw new ObjectNotFoundException("Отсутствует электронная почта");
+        }
+        user = userRepository.save(user);
+        log.trace("Завершение вызова метода create");
         return UserMapper.toUserDto(user);
     }
 
     @Transactional
     @Override
     public UserDto get(Long id) {
+        log.debug("Вызов метода get с id = {}", id);
         Optional<User> user = userRepository.findById(id);
-        if(user.isPresent())
+        if (user.isPresent()) {
+            log.trace("Завершение вызова метода get");
             return UserMapper.toUserDto(user.get());
+        }
         else {
             throw new ObjectNotFoundException("Пользователь с id = " + id + " не найден");
         }
@@ -42,6 +51,8 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public List<UserDto> getAll() {
+        log.debug("Вызов метода getAll");
+        log.trace("Завершение вызова метода getAll");
         return userRepository.findAll().stream()
                 .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
@@ -50,9 +61,11 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserDto update(Long id,UserDto userDto) {
+        log.debug("Вызов метода update с id = {}", id);
         Optional<User> user = userRepository.findById(id);
-        if(user.isEmpty())
+        if(user.isEmpty()) {
             throw new ObjectNotFoundException("Пользователь с id = " + id + " не найден");
+        }
         else {
             User newUser = user.get();
             if (userDto.getName() != null) {
@@ -61,6 +74,7 @@ public class UserServiceImpl implements UserService {
             if (userDto.getEmail() != null) {
                 newUser.setEmail(userDto.getEmail());
             }
+            log.trace("Завершение вызова метода update");
             return UserMapper.toUserDto(userRepository.save(newUser));
         }
 
@@ -69,12 +83,14 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void delete(Long id) {
-        //TODO вернуть потом эту проверку
+        log.debug("Вызов метода delete");
+        // TODO вернуть потом эту проверку
 //        List<Item> empty = new ArrayList<>();
 //        if (itemRepository.getAllItemUsers(id).equals(empty))
 //            userRepository.delete(id);
 //        else
 //            throw new RuntimeException("Нельзя удалить пользователя, у которого есть вещи");
         userRepository.deleteById(id);
+        log.trace("Завершение вызова метода delete");
     }
 }

@@ -25,21 +25,16 @@ class ItemServiceImpl implements ItemService {
 
     private final UserRepository userRepository;
 
+    // TODO добавить логирование
     @Transactional
     @Override
     public ItemDto create(Long userId, ItemDto itemDto) {
-        Optional<User> user = userRepository.findById(userId);
-        if(user.isPresent()) {
-            //TODO добавить проверки
-            Item item = ItemMapper.fromItemDto(itemDto);
-            item.setOwner(user.get());
-            item = itemRepository.save(item);
-            return ItemMapper.toItemDto(item);
-        }
-        else {
-            throw new ObjectNotFoundException("Пользователь с id = " + userId + " не найден");
-        }
-
+        // TODO добавить проверки входных данных
+        User user = checkUser(userId);
+        Item item = ItemMapper.fromItemDto(itemDto);
+        item.setOwner(user);
+        item = itemRepository.save(item);
+        return ItemMapper.toItemDto(item);
     }
 
     @Transactional
@@ -56,26 +51,20 @@ class ItemServiceImpl implements ItemService {
     @Transactional
     @Override
     public ItemDto update(Long userId, Long itemId, ItemDto itemDto) {
-        Optional<User> user = userRepository.findById(userId);
-        if(user.isPresent()) {
-            //TODO добавить проверки
-            Item item = ItemMapper.fromItemDto(itemDto);
-            if (itemDto.getName() != null) {
-                item.setName(itemDto.getName());
-            }
-            if (itemDto.getDescription() != null) {
-                item.setDescription(itemDto.getDescription());
-            }
-            if (itemDto.getAvailable() != null) {
-                item.setAvailable(itemDto.getAvailable());
-            }
-            item = itemRepository.save(item);
-            return ItemMapper.toItemDto(item);
+        User user = checkUser(userId);
+        // TODO добавить проверки
+        Item item = ItemMapper.fromItemDto(itemDto);
+        if (itemDto.getName() != null) {
+            item.setName(itemDto.getName());
         }
-        else {
-            throw new ObjectNotFoundException("Пользователь с id = " + userId + " не найден");
+        if (itemDto.getDescription() != null) {
+            item.setDescription(itemDto.getDescription());
         }
-
+        if (itemDto.getAvailable() != null) {
+            item.setAvailable(itemDto.getAvailable());
+        }
+        item = itemRepository.save(item);
+        return ItemMapper.toItemDto(item);
     }
 
     @Transactional
@@ -87,19 +76,14 @@ class ItemServiceImpl implements ItemService {
     @Transactional
     @Override
     public List<ItemDto> getAllUserItems(Long userId) {
-        Optional<User> user = userRepository.findById(userId);
-        if(user.isPresent()) {
-            //TODO переписать при обновлении функционала Item
-            List<Item> items = itemRepository.findAllByOwnerId(userId);
-            List<ItemDto> result = new ArrayList<>();
-            for(Item item : items) {
-                result.add(ItemMapper.toItemDto(item));
-            }
-            return result;
+        User user = checkUser(userId);
+        // TODO переписать при обновлении функционала Item
+        List<Item> items = itemRepository.findAllByOwnerId(userId);
+        List<ItemDto> result = new ArrayList<>();
+        for(Item item : items) {
+            result.add(ItemMapper.toItemDto(item));
         }
-        else {
-            throw new ObjectNotFoundException("Пользователь с id = " + userId + " не найден");
-        }
+        return result;
     }
 
     @Transactional
@@ -108,5 +92,15 @@ class ItemServiceImpl implements ItemService {
         return itemRepository.search(text).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
+    }
+
+    public User checkUser(Long userId) {
+        Optional<User> user = userRepository.findById(userId);
+        if(user.isPresent()) {
+            return user.get();
+        }
+        else {
+            throw new ObjectNotFoundException("Пользователь с id = " + userId + " не найден");
+        }
     }
 }

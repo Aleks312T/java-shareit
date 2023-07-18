@@ -15,6 +15,6 @@ public class UserDto {
     @NotBlank
     private String name;
     @NotBlank
-    @Email
+    @Email(message = "Некорректная электронная почта")
     private String email;
 }

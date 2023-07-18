@@ -18,24 +18,21 @@ import java.time.LocalDateTime;
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(name = "start_date")
     @NotNull
     private LocalDateTime start;
 
     @Column(name = "end_date")
-    @NotNull
     private LocalDateTime end;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @ToString.Exclude
+    @ManyToOne
     @JoinColumn(name = "item_id")
     @NotNull
     private Item item;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @ToString.Exclude
+    @ManyToOne
     @JoinColumn(name = "booker_id")
     @NotNull
     private User booker;
