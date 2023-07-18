@@ -14,21 +14,18 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class BookingUserDto {
-    @NotNull
     private Long id;
 
     @NotNull
     private LocalDateTime start;
 
+    @NotNull
     private LocalDateTime end;
 
-    @NotNull
     private ItemDto item;
 
-    @NotNull
     private UserDto booker;
 
     @Enumerated(EnumType.STRING)
-    @NotNull
     private BookingStatus status;
 }

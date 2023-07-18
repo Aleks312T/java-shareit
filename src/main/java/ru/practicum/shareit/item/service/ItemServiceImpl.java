@@ -53,18 +53,18 @@ class ItemServiceImpl implements ItemService {
     public ItemDto update(Long userId, Long itemId, ItemDto itemDto) {
         User user = checkUser(userId);
         // TODO добавить проверки
-        Item item = ItemMapper.fromItemDto(itemDto);
+        Item result = checkItem(itemId);
         if (itemDto.getName() != null) {
-            item.setName(itemDto.getName());
+            result.setName(itemDto.getName());
         }
         if (itemDto.getDescription() != null) {
-            item.setDescription(itemDto.getDescription());
+            result.setDescription(itemDto.getDescription());
         }
         if (itemDto.getAvailable() != null) {
-            item.setAvailable(itemDto.getAvailable());
+            result.setAvailable(itemDto.getAvailable());
         }
-        item = itemRepository.save(item);
-        return ItemMapper.toItemDto(item);
+        result = itemRepository.save(result);
+        return ItemMapper.toItemDto(result);
     }
 
     @Transactional
@@ -89,7 +89,13 @@ class ItemServiceImpl implements ItemService {
     @Transactional
     @Override
     public List<ItemDto> search(String text) {
-        return itemRepository.search(text).stream()
+        if(text == null)
+            throw new NullPointerException("Отсутствует входной текст");
+        else
+        if(text.isBlank() || text.isEmpty())
+            return new ArrayList<>();
+        else
+            return itemRepository.search(text).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
@@ -101,6 +107,16 @@ class ItemServiceImpl implements ItemService {
         }
         else {
             throw new ObjectNotFoundException("Пользователь с id = " + userId + " не найден");
+        }
+    }
+
+    public Item checkItem(Long itemId) {
+        Optional<Item> item = itemRepository.findById(itemId);
+        if(item.isPresent()) {
+            return item.get();
+        }
+        else {
+            throw new ObjectNotFoundException("Предмет с id = " + itemId + " не найден");
         }
     }
 }

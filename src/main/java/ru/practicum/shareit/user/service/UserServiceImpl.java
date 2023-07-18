@@ -11,7 +11,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import javax.transaction.Transactional;
-import javax.validation.ValidationException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -26,19 +25,13 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto addNew(UserDto userDto) {
-//        log.debug("Вызов метода create");
-//        if(userDto.getEmail() == null) {
-//            throw new ObjectNotFoundException("Отсутствует электронная почта");
-//        }
-//        User user = UserMapper.fromUserDto(userDto);
-//        //checkUserEmail(user.getEmail());
-//        user = userRepository.save(user);
-//        log.trace("Создан пользователь с id = {}", user.getId());
-//        return UserMapper.toUserDto(user);
-        if (userDto.getEmail() == null) {
-            throw new ValidationException("Email field cannot be null!");
+        log.debug("Вызов метода create");
+        if(userDto.getEmail() == null) {
+            throw new ObjectNotFoundException("Отсутствует электронная почта");
         }
-        User user = userRepository.save(UserMapper.fromUserDto(userDto));
+        User user = UserMapper.fromUserDto(userDto);
+        user = userRepository.save(user);
+        log.trace("Создан пользователь с id = {}", user.getId());
         return UserMapper.toUserDto(user);
     }
 
@@ -94,12 +87,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void delete(Long id) {
         log.debug("Вызов метода delete");
-        // TODO вернуть потом эту проверку
-//        List<Item> empty = new ArrayList<>();
-//        if (itemRepository.getAllItemUsers(id).equals(empty))
-//            userRepository.delete(id);
-//        else
-//            throw new RuntimeException("Нельзя удалить пользователя, у которого есть вещи");
+        // TODO вернуть потом проверку удаления пользователя с вещами
         userRepository.deleteById(id);
         log.trace("Завершение вызова метода delete");
     }

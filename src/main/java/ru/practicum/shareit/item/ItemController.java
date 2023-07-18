@@ -22,6 +22,14 @@ public class ItemController {
         return itemService.create(userId, itemDto);
     }
 
+    // TODO разкомментить
+//    @PostMapping
+//    public ItemDto newComment(@RequestBody @Valid Comment comment,
+//                              @RequestHeader("X-Sharer-User-Id") Long userId,
+//                              @PathVariable Long itemId) {
+//        return itemService.addNewComment(comment, userId, itemId);
+//    }
+
     @PatchMapping("/{id}")
     public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                               @PathVariable Long id,
