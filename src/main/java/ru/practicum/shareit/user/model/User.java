@@ -4,23 +4,24 @@ import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "users")
 @Getter
 @Setter
-@ToString
-@Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotBlank
+
+    @Column
     private String name;
-    @NotBlank
+
     @Email(message = "Некорректная электронная почта")
+    @Column(unique = true)
     private String email;
+
 }

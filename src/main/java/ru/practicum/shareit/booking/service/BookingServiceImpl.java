@@ -3,8 +3,6 @@ package ru.practicum.shareit.booking.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.dto.BookingUserDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -13,8 +11,7 @@ import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
-import ru.practicum.shareit.exceptions.unAuthorizedAccessException;
-import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.exceptions.UnauthorizedAccessException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
@@ -63,7 +60,7 @@ public class BookingServiceImpl implements BookingService {
         } else {
             if (!booking.get().getBooker().getId().equals(userId)
                     && !booking.get().getItem().getOwner().getId().equals(userId)) {
-                throw new unAuthorizedAccessException(
+                throw new UnauthorizedAccessException(
                         "Пользователь с id = " + userId + " не может одобрить бронирование");
             }
             return BookingMapper.toBookingUserDto(booking.get());
@@ -83,7 +80,7 @@ public class BookingServiceImpl implements BookingService {
             }
 
             if (!booking.get().getItem().getOwner().getId().equals(userId)) {
-                throw new unAuthorizedAccessException(
+                throw new UnauthorizedAccessException(
                         "Пользователь с id = " + userId + " не является владельцем бронирование");
             }
 

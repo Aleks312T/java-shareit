@@ -3,6 +3,7 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
@@ -10,32 +11,39 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import javax.transaction.Transactional;
+import javax.validation.ValidationException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 @Slf4j
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
-    @Transactional
     @Override
-    public UserDto create(UserDto userDto) {
-        log.debug("Вызов метода create");
-        User user = UserMapper.fromUserDto(userDto);
-        if(user.getEmail() == null) {
-            throw new ObjectNotFoundException("Отсутствует электронная почта");
+    @Transactional
+    public UserDto addNew(UserDto userDto) {
+//        log.debug("Вызов метода create");
+//        if(userDto.getEmail() == null) {
+//            throw new ObjectNotFoundException("Отсутствует электронная почта");
+//        }
+//        User user = UserMapper.fromUserDto(userDto);
+//        //checkUserEmail(user.getEmail());
+//        user = userRepository.save(user);
+//        log.trace("Создан пользователь с id = {}", user.getId());
+//        return UserMapper.toUserDto(user);
+        if (userDto.getEmail() == null) {
+            throw new ValidationException("Email field cannot be null!");
         }
-        user = userRepository.save(user);
-        log.trace("Завершение вызова метода create");
+        User user = userRepository.save(UserMapper.fromUserDto(userDto));
         return UserMapper.toUserDto(user);
     }
 
-    @Transactional
     @Override
+    @Transactional
     public UserDto get(Long id) {
         log.debug("Вызов метода get с id = {}", id);
         Optional<User> user = userRepository.findById(id);
@@ -48,8 +56,8 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    @Transactional
     @Override
+    @Transactional
     public List<UserDto> getAll() {
         log.debug("Вызов метода getAll");
         log.trace("Завершение вызова метода getAll");
@@ -58,9 +66,9 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
     @Override
-    public UserDto update(Long id,UserDto userDto) {
+    @Transactional
+    public UserDto update(Long id, UserDto userDto) {
         log.debug("Вызов метода update с id = {}", id);
         Optional<User> user = userRepository.findById(id);
         if(user.isEmpty()) {
@@ -68,6 +76,8 @@ public class UserServiceImpl implements UserService {
         }
         else {
             User newUser = user.get();
+            if(checkUserEmail(newUser.getEmail(), userDto.getId()))
+                throw new IncorrectParameterException("Электронная почта уже занята");
             if (userDto.getName() != null) {
                 newUser.setName(userDto.getName());
             }
@@ -80,8 +90,8 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void delete(Long id) {
         log.debug("Вызов метода delete");
         // TODO вернуть потом эту проверку
@@ -92,5 +102,22 @@ public class UserServiceImpl implements UserService {
 //            throw new RuntimeException("Нельзя удалить пользователя, у которого есть вещи");
         userRepository.deleteById(id);
         log.trace("Завершение вызова метода delete");
+    }
+
+    public void checkUserEmail(String email) {
+        List<User> sameEmailUsers = userRepository.findByEmailContainingIgnoreCase(email);
+        if(!sameEmailUsers.isEmpty()) {
+            throw new IncorrectParameterException("Электронная почта уже занята");
+        }
+    }
+
+    public boolean checkUserEmail(String email, Long id) {
+        List<User> sameEmailUsers = userRepository.findByEmailContainingIgnoreCase(email);
+        for (User user : sameEmailUsers) {
+            if (!Objects.equals(user.getId(), id)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -33,9 +33,16 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleIncorrectParameterException(IncorrectParameterException e) {
-        log.debug("Получен статус 400 Not found {}", e.getMessage(), e);
+        log.debug("Получен статус 409 Conflict {}", e.getMessage(), e);
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleUnauthorizedAccessException(UnauthorizedAccessException e) {
+        log.debug("Получен статус 401 Unauthorized {}", e.getMessage(), e);
         return new ErrorResponse(e.getMessage());
     }
 

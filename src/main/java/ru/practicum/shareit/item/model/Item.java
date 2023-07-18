@@ -14,6 +14,7 @@ import javax.validation.constraints.NotNull;
 @Setter
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class Item {
     @Id

@@ -14,10 +14,9 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "requests")
-@Getter
-@Setter
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class ItemRequest {
     @Id
