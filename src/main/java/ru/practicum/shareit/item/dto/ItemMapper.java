@@ -23,7 +23,10 @@ public class ItemMapper {
                 .build();
     }
 
-    public static ItemDto toItemDtoAll(Item item, BookingItemDto last, BookingItemDto next, List<CommentDto> comments) {
+    public static ItemDto toItemDtoAll(Item item,
+                                       BookingItemDto last,
+                                       BookingItemDto next,
+                                       List<CommentDto> comments) {
         return ItemDto.builder()
                 .id(item.getId())
                 .name(item.getName())
@@ -35,8 +38,10 @@ public class ItemMapper {
                 .build();
     }
 
-    public static ItemDto toItemDtoAllRegularComments
-            (Item item, BookingItemDto last, BookingItemDto next, List<Comment> comments) {
+    public static ItemDto toItemDtoAllRegularComments (Item item,
+                                                       BookingItemDto last,
+                                                       BookingItemDto next,
+                                                       List<Comment> comments) {
         ItemDto result = ItemDto.builder()
                 .id(item.getId())
                 .name(item.getName())
