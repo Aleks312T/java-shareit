@@ -195,8 +195,7 @@ public class BookingServiceImpl implements BookingService {
         Optional<User> user = userRepository.findById(userId);
         if (user.isPresent()) {
             return user.get();
-        }
-        else {
+        } else {
             throw new ObjectNotFoundException("Пользователь с id = " + userId + " не найден");
         }
     }

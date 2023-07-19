@@ -101,7 +101,7 @@ class ItemServiceImpl implements ItemService {
         User user = checkUser(userId);
         List<Item> items = itemRepository.findAllByOwnerId(userId);
         List<ItemDto> result = new ArrayList<>();
-        for(Item item : items) {
+        for (Item item : items) {
             result.add(addBookingAndComment(item, userId));
         }
         log.trace("Завершение вызова метода getAllUserItems");
@@ -170,8 +170,7 @@ class ItemServiceImpl implements ItemService {
         Optional<User> user = userRepository.findById(userId);
         if (user.isPresent()) {
             return user.get();
-        }
-        else {
+        } else {
             throw new ObjectNotFoundException("Пользователь с id = " + userId + " не найден");
         }
     }
@@ -181,8 +180,7 @@ class ItemServiceImpl implements ItemService {
         Optional<Item> item = itemRepository.findById(itemId);
         if (item.isPresent()) {
             return item.get();
-        }
-        else {
+        } else {
             throw new ObjectNotFoundException("Предмет с id = " + itemId + " не найден");
         }
     }
