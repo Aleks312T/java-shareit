@@ -3,9 +3,12 @@ package ru.practicum.shareit.item.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import ru.practicum.shareit.booking.dto.BookingItemDto;
+import ru.practicum.shareit.comments.dto.CommentDto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -19,5 +22,9 @@ public class ItemDto {
     @NotNull
     private Boolean available;
 
-    //TODO добавить комменты в dto
+    private BookingItemDto lastBooking;
+
+    private BookingItemDto nextBooking;
+
+    private List<CommentDto> comments;
 }

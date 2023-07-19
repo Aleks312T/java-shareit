@@ -3,6 +3,15 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.dto.BookingItemDto;
+import ru.practicum.shareit.booking.dto.BookingMapper;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.comments.dto.CommentDto;
+import ru.practicum.shareit.comments.dto.CommentMapper;
+import ru.practicum.shareit.comments.model.Comment;
+import ru.practicum.shareit.comments.repository.CommentRepository;
+import ru.practicum.shareit.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
@@ -25,6 +34,10 @@ class ItemServiceImpl implements ItemService {
 
     private final UserRepository userRepository;
 
+    private final CommentRepository commentRepository;
+
+    private final BookingRepository bookingRepository;
+
     // TODO добавить логирование
     @Transactional
     @Override
@@ -39,13 +52,12 @@ class ItemServiceImpl implements ItemService {
 
     @Transactional
     @Override
-    public ItemDto get(Long id) {
-        Optional<Item> item = itemRepository.findById(id);
-        if(item.isPresent())
-            return ItemMapper.toItemDto(item.get());
-        else {
-            throw new ObjectNotFoundException("Предмет с id = " + id + " не найден");
-        }
+    public ItemDto get(Long itemId, Long userId) {
+        Item item = checkItem(itemId);
+        User user = checkUser(userId);
+
+        ItemDto result = addBookingAndComment(item, userId);
+        return result;
     }
 
     @Transactional
@@ -81,7 +93,7 @@ class ItemServiceImpl implements ItemService {
         List<Item> items = itemRepository.findAllByOwnerId(userId);
         List<ItemDto> result = new ArrayList<>();
         for(Item item : items) {
-            result.add(ItemMapper.toItemDto(item));
+            result.add(addBookingAndComment(item, userId));
         }
         return result;
     }
@@ -98,6 +110,40 @@ class ItemServiceImpl implements ItemService {
             return itemRepository.search(text).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    @Override
+    public CommentDto createComment(CommentDto commentDto, Long userId, Long itemId) {
+        User user = checkUser(userId);
+        Item item = checkItem(itemId);
+        if(commentDto.getText() == null || commentDto.getText().isBlank())
+            throw new IncorrectParameterException("Отсутствует входной текст");
+        if(commentDto.getAuthorName() == null || commentDto.getAuthorName().isBlank())
+            throw new IncorrectParameterException("Отсутствует автор");
+        Comment comment = CommentMapper.fromCommentDto(commentDto, item, user);
+        comment = commentRepository.save(comment);
+        return CommentMapper.toCommentDto(comment);
+    }
+
+    private ItemDto addBookingAndComment(Item item, Long userId) {
+        Booking lastBooking = null;
+        Booking nextBooking = null;
+
+        if (userId.equals(item.getOwner().getId())) {
+            lastBooking = bookingRepository.getLastBooking(item.getId());
+            if (lastBooking == null || lastBooking.getBooker().getId().equals(item.getOwner().getId())) {
+                lastBooking = null;
+            } else {
+                nextBooking = bookingRepository.getNextBooking(item.getId(), lastBooking.getEnd());
+            }
+        }
+        List<CommentDto> comments = CommentMapper.fromListComment(commentRepository.findAllByItemId(item.getId()));
+
+        BookingItemDto last = (lastBooking == null ? null : BookingMapper.toBookingItemDto(lastBooking));
+        BookingItemDto next = (lastBooking == null ? null : BookingMapper.toBookingItemDto(nextBooking));
+
+        return ItemMapper.toItemDtoAll(item, last, next, comments);
     }
 
     public User checkUser(Long userId) {

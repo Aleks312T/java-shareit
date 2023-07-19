@@ -2,6 +2,8 @@ package ru.practicum.shareit.booking.repository;
 
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 
@@ -38,9 +40,22 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findAllByItemOwnerIdAndStatusOrderByStartDesc(Long bookerId, BookingStatus bookingStatus);
 
-    Booking findFirstByItemIdAndStatusAndStartBeforeOrderByStartDesc(Long itemId, BookingStatus status, LocalDateTime startBefore);
+    @Query(value = "select * " +
+            "FROM bookings " +
+            "WHERE item_id  = :idItem " +
+            "AND start_date < now() " +
+            "ORDER BY end_date desc " +
+            "limit 1", nativeQuery = true)
+    Booking getLastBooking(@Param("idItem") Long id);
 
-    Booking findFirstByItemIdAndStatusAndStartAfterOrderByStartAsc(Long itemId, BookingStatus status, LocalDateTime startAfter);
+    @Query (value = "select * " +
+            "FROM bookings " +
+            "WHERE item_id  = :idItem " +
+            "AND start_date > :time " +
+            "ORDER BY start_date asc " +
+            "limit 1", nativeQuery = true)
+    Booking getNextBooking(@Param("idItem") Long id,
+                           @Param("time") LocalDateTime time);
 
     boolean existsByItemIdAndBookerIdAndStatusAndEndBefore(Long itemId, Long userId, BookingStatus status, LocalDateTime endBefore);
 }

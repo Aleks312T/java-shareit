@@ -32,14 +32,14 @@ public class Comment {
 
     @ManyToOne
     @JoinColumn(name = "author_id")
-    private User author;
+    private User authorName;
 
     private LocalDateTime created = LocalDateTime.now();
 
     public Comment(String text, Item item, User author, LocalDateTime created) {
         this.text = text;
         this.item = item;
-        this.author = author;
+        this.authorName = author;
         this.created = created;
     }
 }

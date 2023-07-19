@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.comments.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 
@@ -22,24 +23,24 @@ public class ItemController {
         return itemService.create(userId, itemDto);
     }
 
-    // TODO разкомментить
-//    @PostMapping
-//    public ItemDto newComment(@RequestBody @Valid Comment comment,
-//                              @RequestHeader("X-Sharer-User-Id") Long userId,
-//                              @PathVariable Long itemId) {
-//        return itemService.addNewComment(comment, userId, itemId);
-//    }
-
-    @PatchMapping("/{id}")
-    public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
-                              @PathVariable Long id,
-                              @RequestBody ItemDto itemDto) {
-        return itemService.update(userId,id,itemDto);
+    @PostMapping("/{itemId}/comment")
+    public CommentDto newComment(@RequestBody @Valid CommentDto comment,
+                              @RequestHeader("X-Sharer-User-Id") Long userId,
+                              @PathVariable Long itemId) {
+        return itemService.createComment(comment, userId, itemId);
     }
 
-    @GetMapping("/{id}")
-    public ItemDto getItem(@PathVariable Long id) {
-        return itemService.get(id);
+    @PatchMapping("/{itemId}")
+    public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
+                              @PathVariable Long itemId,
+                              @RequestBody ItemDto itemDto) {
+        return itemService.update(userId, itemId, itemDto);
+    }
+
+    @GetMapping("/{itemId}")
+    public ItemDto getItem(@RequestHeader("X-Sharer-User-Id") Long userId,
+                           @PathVariable Long itemId) {
+        return itemService.get(itemId, userId);
     }
 
     @GetMapping
@@ -52,8 +53,8 @@ public class ItemController {
         return itemService.search(text);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteItem(@PathVariable Long id) {
-        itemService.delete(id);
+    @DeleteMapping("/{itemId}")
+    public void deleteItem(@PathVariable Long itemId) {
+        itemService.delete(itemId);
     }
 }
