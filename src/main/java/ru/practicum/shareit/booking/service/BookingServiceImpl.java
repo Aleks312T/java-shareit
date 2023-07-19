@@ -45,7 +45,7 @@ public class BookingServiceImpl implements BookingService {
                 throw new IncorrectParameterException("Статус данной вещи недоступен.");
             }
             if (item.get().getOwner().getId().equals(userId)) {
-                throw new RestrictedAccessException("Пользователь не может арендовать свою же вещь.");
+                throw new ObjectNotFoundException("Пользователь не может арендовать свою же вещь.");
             }
 
             Booking booking = BookingMapper.fromBookingItemDto(bookingDto, item.get(), user, BookingStatus.WAITING);
@@ -65,7 +65,8 @@ public class BookingServiceImpl implements BookingService {
             checkBooking(booking.get());
             if (!booking.get().getBooker().getId().equals(userId)
                     && !booking.get().getItem().getOwner().getId().equals(userId)) {
-                throw new UnauthorizedAccessException(
+                //UnauthorizedAccessException
+                throw new ObjectNotFoundException(
                         "Пользователь с id = " + userId + " не может одобрить бронирование");
             }
             return BookingMapper.toBookingUserDto(booking.get());
@@ -85,7 +86,7 @@ public class BookingServiceImpl implements BookingService {
             }
 
             if (!booking.get().getItem().getOwner().getId().equals(userId)) {
-                throw new UnauthorizedAccessException(
+                throw new ObjectNotFoundException(
                         "Пользователь с id = " + userId + " не является владельцем бронирование");
             }
 
@@ -127,10 +128,10 @@ public class BookingServiceImpl implements BookingService {
                             .findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.REJECTED);
                     return BookingMapper.fromListBooking(result);
                 default:
-                    throw new RuntimeException();
+                    throw new IncorrectParameterException("Unknown state: " + state);
             }
         } catch (Exception e) {
-            throw new IncorrectParameterException("Некорректный статус бронирования");
+            throw new IncorrectParameterException("Unknown state: " + state);
         }
     }
 
@@ -167,10 +168,10 @@ public class BookingServiceImpl implements BookingService {
                             .findAllByBookerIdAndStatusOrderByStartDesc(bookerId, BookingStatus.REJECTED);
                     return BookingMapper.fromListBooking(result);
                 default:
-                    throw new RuntimeException();
+                    throw new IncorrectParameterException("Unknown state: " + state);
             }
         } catch (Exception e) {
-            throw new IncorrectParameterException("Некорректный статус бронирования");
+            throw new IncorrectParameterException("Unknown state: " + state);
         }
     }
 

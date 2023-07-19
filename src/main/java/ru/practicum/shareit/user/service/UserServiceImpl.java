@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDto addNew(UserDto userDto) {
+    public UserDto create(UserDto userDto) {
         log.debug("Вызов метода create");
         if(userDto.getEmail() == null) {
             throw new ObjectNotFoundException("Отсутствует электронная почта");
