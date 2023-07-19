@@ -21,7 +21,7 @@ public class CommentMapper {
         return new Comment(commentDto.getText(), item, user, commentDto.getCreated());
     }
 
-    public static List<CommentDto> fromListComment (List<Comment> input) {
+    public static List<CommentDto> fromListComment(List<Comment> input) {
         return input.stream()
                 .map(CommentMapper::toCommentDto).collect(Collectors.toList());
     }

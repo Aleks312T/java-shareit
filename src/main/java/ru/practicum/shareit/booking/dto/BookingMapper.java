@@ -83,7 +83,7 @@ public class BookingMapper {
                 .build();
     }
 
-    public static List<BookingUserDto> fromListBooking (List<Booking> input) {
+    public static List<BookingUserDto> fromListBooking(List<Booking> input) {
         return input.stream()
                 .map(BookingMapper::toBookingUserDto).collect(Collectors.toList());
     }

@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto create(UserDto userDto) {
         log.debug("Вызов метода create");
-        if(userDto.getEmail() == null) {
+        if (userDto.getEmail() == null) {
             throw new ObjectNotFoundException("Отсутствует электронная почта");
         }
         User user = UserMapper.fromUserDto(userDto);
@@ -43,8 +43,7 @@ public class UserServiceImpl implements UserService {
         if (user.isPresent()) {
             log.trace("Завершение вызова метода get");
             return UserMapper.toUserDto(user.get());
-        }
-        else {
+        } else {
             throw new ObjectNotFoundException("Пользователь с id = " + id + " не найден");
         }
     }
@@ -64,12 +63,11 @@ public class UserServiceImpl implements UserService {
     public UserDto update(Long id, UserDto userDto) {
         log.debug("Вызов метода update с id = {}", id);
         Optional<User> user = userRepository.findById(id);
-        if(user.isEmpty()) {
+        if (user.isEmpty()) {
             throw new ObjectNotFoundException("Пользователь с id = " + id + " не найден");
-        }
-        else {
+        } else {
             User newUser = user.get();
-            if(checkUserEmail(newUser.getEmail(), userDto.getId()))
+            if (checkUserEmail(newUser.getEmail(), userDto.getId()))
                 throw new IncorrectParameterException("Электронная почта уже занята");
             if (userDto.getName() != null) {
                 newUser.setName(userDto.getName());
@@ -94,7 +92,7 @@ public class UserServiceImpl implements UserService {
     public void checkUserEmail(String email) {
         log.trace("Вызов метода checkUserEmail с email = {}", email);
         List<User> sameEmailUsers = userRepository.findByEmailContainingIgnoreCase(email);
-        if(!sameEmailUsers.isEmpty()) {
+        if (!sameEmailUsers.isEmpty()) {
             throw new IncorrectParameterException("Электронная почта уже занята");
         }
     }
