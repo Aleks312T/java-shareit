@@ -3,7 +3,6 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.dto.BookingDtoInput;
 import ru.practicum.shareit.booking.dto.BookingItemDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
@@ -46,29 +45,32 @@ class ItemServiceImpl implements ItemService {
     @Transactional
     @Override
     public ItemDto create(Long userId, ItemDto itemDto) {
-        // TODO добавить проверки входных данных
+        log.debug("Вызов метода create");
         User user = checkUser(userId);
         Item item = ItemMapper.fromItemDto(itemDto);
         item.setOwner(user);
         item = itemRepository.save(item);
+        log.trace("Создан предмет с id = {}", item.getId());
         return ItemMapper.toItemDto(item);
     }
 
     @Transactional
     @Override
     public ItemDto get(Long itemId, Long userId) {
+        log.debug("Вызов метода get с itemId = {}, userId = {}", itemId, userId);
         Item item = checkItem(itemId);
         User user = checkUser(userId);
 
         ItemDto result = addBookingAndComment(item, userId);
+        log.trace("Завершение вызова метода get");
         return result;
     }
 
     @Transactional
     @Override
     public ItemDto update(Long userId, Long itemId, ItemDto itemDto) {
+        log.debug("Вызов метода update с itemId = {}, userId = {}", itemId, userId);
         User user = checkUser(userId);
-        // TODO добавить проверки
         Item result = checkItem(itemId);
         if (itemDto.getName() != null) {
             result.setName(itemDto.getName());
@@ -80,59 +82,70 @@ class ItemServiceImpl implements ItemService {
             result.setAvailable(itemDto.getAvailable());
         }
         result = itemRepository.save(result);
+        log.trace("Завершение вызова метода update");
         return ItemMapper.toItemDto(result);
     }
 
     @Transactional
     @Override
     public void delete(Long id) {
+        log.debug("Вызов метода delete с id = {}", id);
         itemRepository.deleteById(id);
+        log.trace("Завершение вызова метода delete");
     }
 
     @Transactional
     @Override
     public List<ItemDto> getAllUserItems(Long userId) {
+        log.debug("Вызов метода getAllUserItems с userId = {}", userId);
         User user = checkUser(userId);
-        // TODO переписать при обновлении функционала Item
         List<Item> items = itemRepository.findAllByOwnerId(userId);
         List<ItemDto> result = new ArrayList<>();
         for(Item item : items) {
             result.add(addBookingAndComment(item, userId));
         }
+        log.trace("Завершение вызова метода getAllUserItems");
         return result;
     }
 
     @Transactional
     @Override
     public List<ItemDto> search(String text) {
-        if(text == null)
+        log.debug("Вызов метода search");
+        if (text == null)
             throw new NullPointerException("Отсутствует входной текст");
         else
-        if(text.isBlank() || text.isEmpty())
+        if (text.isBlank() || text.isEmpty())
             return new ArrayList<>();
-        else
-            return itemRepository.search(text).stream()
-                .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
+        else {
+            List<ItemDto> result =  itemRepository.search(text).stream()
+                    .map(ItemMapper::toItemDto)
+                    .collect(Collectors.toList());
+            log.trace("Завершение вызова метода search");
+            return result;
+        }
     }
 
     @Transactional
     @Override
     public CommentDto createComment(CommentDto commentDto, Long userId, Long itemId) {
+        log.debug("Вызов метода createComment с itemId = {}, userId = {}", itemId, userId);
         User user = checkUser(userId);
         Item item = checkItem(itemId);
-        if(!bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndBefore(
+        if (!bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndBefore(
                 itemId, userId, BookingStatus.APPROVED, LocalDateTime.now()))
             throw new ValidationException("Невозможно оставить комментарий");
 
-        if(commentDto.getText() == null || commentDto.getText().isBlank())
+        if (commentDto.getText() == null || commentDto.getText().isBlank())
             throw new IncorrectParameterException("Отсутствует входной текст");
         Comment comment = CommentMapper.fromCommentDto(commentDto, item, user);
         comment = commentRepository.save(comment);
+        log.trace("Завершение вызова метода createComment");
         return CommentMapper.toCommentDto(comment);
     }
 
     private ItemDto addBookingAndComment(Item item, Long userId) {
+        log.trace("Вызов метода addBookingAndComment с itemId = {}, userId = {}", item.getId(), userId);
         Booking lastBooking = null;
         Booking nextBooking = null;
 
@@ -147,14 +160,15 @@ class ItemServiceImpl implements ItemService {
         List<CommentDto> comments = CommentMapper.fromListComment(commentRepository.findAllByItemId(item.getId()));
 
         BookingItemDto last = (lastBooking == null ? null : BookingMapper.toBookingItemDto(lastBooking));
-        BookingItemDto next = (lastBooking == null ? null : BookingMapper.toBookingItemDto(nextBooking));
+        BookingItemDto next = (nextBooking == null ? null : BookingMapper.toBookingItemDto(nextBooking));
 
         return ItemMapper.toItemDtoAll(item, last, next, comments);
     }
 
     public User checkUser(Long userId) {
+        log.trace("Вызов метода checkUser с userId = {}", userId);
         Optional<User> user = userRepository.findById(userId);
-        if(user.isPresent()) {
+        if (user.isPresent()) {
             return user.get();
         }
         else {
@@ -163,8 +177,9 @@ class ItemServiceImpl implements ItemService {
     }
 
     public Item checkItem(Long itemId) {
+        log.trace("Вызов метода checkItem с itemId = {}", itemId);
         Optional<Item> item = itemRepository.findById(itemId);
-        if(item.isPresent()) {
+        if (item.isPresent()) {
             return item.get();
         }
         else {

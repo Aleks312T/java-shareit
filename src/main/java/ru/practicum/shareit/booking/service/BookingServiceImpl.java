@@ -29,16 +29,16 @@ public class BookingServiceImpl implements BookingService {
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
 
-    //TODO добавить логирование
     @Transactional
     @Override
     public BookingUserDto create(Long userId, BookingDtoInput bookingDto) {
+        log.debug("Вызов метода create");
         User user = checkUser(userId);
         checkBooking(bookingDto);
-        if(bookingDto.getItemId() == null)
+        if (bookingDto.getItemId() == null)
             throw new ObjectNotFoundException("Предмет с id = " + bookingDto.getItemId() + " не найден");
         Optional<Item> item = itemRepository.findById(bookingDto.getItemId());
-        if(item.isEmpty())
+        if (item.isEmpty())
             throw new ObjectNotFoundException("Предмет с id = " + bookingDto.getItemId() + " не найден");
         else {
             if (!item.get().getAvailable()) {
@@ -49,35 +49,40 @@ public class BookingServiceImpl implements BookingService {
             }
 
             Booking booking = BookingMapper.fromBookingDtoInput(bookingDto, item.get(), user, BookingStatus.WAITING);
-            return BookingMapper.toBookingUserDto(bookingRepository.save(booking));
+            booking = bookingRepository.save(booking);
+            log.trace("Создана бронь с id = {}", booking.getId());
+            return BookingMapper.toBookingUserDto(booking);
         }
     }
 
     @Transactional
     @Override
     public BookingUserDto get(Long bookingId, Long userId) {
+        log.debug("Вызов метода get с bookingId = {}, userId = {}", bookingId, userId);
         checkUser(userId);
         Optional<Booking> booking = bookingRepository.findById(bookingId);
 
-        if(booking.isEmpty()) {
+        if (booking.isEmpty()) {
             throw new ObjectNotFoundException("Бронирование с id = " + bookingId + " не найдено.");
         } else {
             checkBooking(booking.get());
             if (!booking.get().getBooker().getId().equals(userId)
                     && !booking.get().getItem().getOwner().getId().equals(userId)) {
-                //UnauthorizedAccessException
-                throw new ObjectNotFoundException(
-                        "Пользователь с id = " + userId + " не может одобрить бронирование");
+                // UnauthorizedAccessException логичнее, но тесты считают иначе
+                throw new ObjectNotFoundException("Пользователь с id = " + userId + " не может одобрить бронирование");
             }
+            log.trace("Завершение вызова метода get");
             return BookingMapper.toBookingUserDto(booking.get());
         }
     }
 
+    @Transactional
     @Override
     public BookingUserDto confirm(Long bookingId, long userId, boolean approved) {
+        log.debug("Вызов метода confirm с bookingId = {}, userId = {}", bookingId, userId);
         checkUser(userId);
         Optional<Booking> booking = bookingRepository.findById(bookingId);
-        if(booking.isEmpty()) {
+        if (booking.isEmpty()) {
             throw new ObjectNotFoundException("Бронирование с id = " + bookingId + " не найдено.");
         } else {
             if (booking.get().getItem().getOwner().getId().equals(userId)
@@ -91,12 +96,16 @@ public class BookingServiceImpl implements BookingService {
             }
 
             booking.get().setStatus(approved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
-            return BookingMapper.toBookingUserDto(bookingRepository.save(booking.get()));
+            Booking result = bookingRepository.save(booking.get());
+            log.trace("Завершение вызова метода confirm");
+            return BookingMapper.toBookingUserDto(result);
         }
     }
 
+    @Transactional
     @Override
     public List<BookingUserDto> getAllOwnerBookings(Long ownerId, String state) {
+        log.debug("Вызов метода getAllOwnerBookings с ownerId = {}, state = {}", ownerId, state);
         checkUser(ownerId);
         List<Booking> result;
         try {
@@ -105,38 +114,42 @@ public class BookingServiceImpl implements BookingService {
                 case ALL:
                     result = bookingRepository
                             .findAllByItemOwnerIdOrderByStartDesc(ownerId);
-                    return BookingMapper.fromListBooking(result);
+                    break;
                 case PAST:
                     result = bookingRepository
                             .findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(ownerId, LocalDateTime.now());
-                    return BookingMapper.fromListBooking(result);
+                    break;
                 case FUTURE:
                     result = bookingRepository
                             .findAllByItemOwnerIdAndStartAfterOrderByStartDesc(ownerId, LocalDateTime.now());
-                    return BookingMapper.fromListBooking(result);
+                    break;
                 case CURRENT:
                     result = bookingRepository
                             .findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(ownerId,
                             LocalDateTime.now(), LocalDateTime.now());
-                    return BookingMapper.fromListBooking(result);
+                    break;
                 case WAITING:
                     result = bookingRepository
                             .findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.WAITING);
-                    return BookingMapper.fromListBooking(result);
+                    break;
                 case REJECTED:
                     result = bookingRepository
                             .findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.REJECTED);
-                    return BookingMapper.fromListBooking(result);
+                    break;
                 default:
                     throw new IncorrectParameterException("Unknown state: " + state);
             }
+            log.trace("Завершение вызова метода getAllOwnerBookings");
+            return BookingMapper.fromListBooking(result);
         } catch (Exception e) {
             throw new IncorrectParameterException("Unknown state: " + state);
         }
     }
 
+    @Transactional
     @Override
     public List<BookingUserDto> getAllBookerBookings(Long bookerId, String state) {
+        log.debug("Вызов метода getAllBookerBookings с bookerId = {}, state = {}", bookerId, state);
         checkUser(bookerId);
         List<Booking> result;
         try {
@@ -145,39 +158,42 @@ public class BookingServiceImpl implements BookingService {
                 case ALL:
                     result = bookingRepository
                             .findAllByBookerIdOrderByStartDesc(bookerId);
-                    return BookingMapper.fromListBooking(result);
+                    break;
                 case PAST:
                     result = bookingRepository
                             .findAllByBookerIdAndEndBeforeOrderByStartDesc(bookerId, LocalDateTime.now());
-                    return BookingMapper.fromListBooking(result);
+                    break;
                 case FUTURE:
                     result = bookingRepository
                             .findAllByBookerIdAndStartAfterOrderByStartDesc(bookerId, LocalDateTime.now());
-                    return BookingMapper.fromListBooking(result);
+                    break;
                 case CURRENT:
                     result = bookingRepository
                             .findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(bookerId,
                             LocalDateTime.now(), LocalDateTime.now());
-                    return BookingMapper.fromListBooking(result);
+                    break;
                 case WAITING:
                     result = bookingRepository
                             .findAllByBookerIdAndStatusOrderByStartDesc(bookerId, BookingStatus.WAITING);
-                    return BookingMapper.fromListBooking(result);
+                    break;
                 case REJECTED:
                     result = bookingRepository
                             .findAllByBookerIdAndStatusOrderByStartDesc(bookerId, BookingStatus.REJECTED);
-                    return BookingMapper.fromListBooking(result);
+                    break;
                 default:
                     throw new IncorrectParameterException("Unknown state: " + state);
             }
+            log.trace("Завершение вызова метода getAllBookerBookings");
+            return BookingMapper.fromListBooking(result);
         } catch (Exception e) {
             throw new IncorrectParameterException("Unknown state: " + state);
         }
     }
 
     public User checkUser(Long userId) {
+        log.trace("Вызов метода checkUser с userId = {}", userId);
         Optional<User> user = userRepository.findById(userId);
-        if(user.isPresent()) {
+        if (user.isPresent()) {
             return user.get();
         }
         else {
@@ -186,23 +202,17 @@ public class BookingServiceImpl implements BookingService {
     }
 
     public void checkBooking(Booking booking) {
-        if(booking.getEnd().isBefore(LocalDateTime.now())
+        log.trace("Вызов метода checkBooking");
+        if (booking.getEnd().isBefore(LocalDateTime.now())
                 || booking.getEnd().isBefore(booking.getStart())
                 || booking.getEnd().isEqual(booking.getStart())) {
             throw new IncorrectParameterException("Ошибка во времени бронирования");
         }
     }
 
-    public void checkBooking(BookingUserDto booking) {
-        if(booking.getEnd().isBefore(LocalDateTime.now())
-            || booking.getEnd().isBefore(booking.getStart())
-            || booking.getEnd().isEqual(booking.getStart())) {
-            throw new IncorrectParameterException("Ошибка во времени бронирования");
-        }
-    }
-
     public void checkBooking(BookingDtoInput booking) {
-        if(booking.getEnd().isBefore(LocalDateTime.now())
+        log.trace("Вызов метода checkBooking");
+        if (booking.getEnd().isBefore(LocalDateTime.now())
                 || booking.getEnd().isBefore(booking.getStart())
                 || booking.getEnd().isEqual(booking.getStart())) {
             throw new IncorrectParameterException("Ошибка во времени бронирования");
