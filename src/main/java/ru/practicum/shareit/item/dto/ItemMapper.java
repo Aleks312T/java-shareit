@@ -38,7 +38,7 @@ public class ItemMapper {
                 .build();
     }
 
-    public static ItemDto toItemDtoAllRegularComments (Item item,
+    public static ItemDto toItemDtoAllRegularComments(Item item,
                                                        BookingItemDto last,
                                                        BookingItemDto next,
                                                        List<Comment> comments) {
