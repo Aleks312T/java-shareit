@@ -3,7 +3,7 @@ package ru.practicum.shareit.booking.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.dto.BookingItemDto;
+import ru.practicum.shareit.booking.dto.BookingDtoInput;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.dto.BookingState;
 import ru.practicum.shareit.booking.dto.BookingUserDto;
@@ -32,7 +32,7 @@ public class BookingServiceImpl implements BookingService {
     //TODO добавить логирование
     @Transactional
     @Override
-    public BookingUserDto create(Long userId, BookingItemDto bookingDto) {
+    public BookingUserDto create(Long userId, BookingDtoInput bookingDto) {
         User user = checkUser(userId);
         checkBooking(bookingDto);
         if(bookingDto.getItemId() == null)
@@ -48,7 +48,7 @@ public class BookingServiceImpl implements BookingService {
                 throw new ObjectNotFoundException("Пользователь не может арендовать свою же вещь.");
             }
 
-            Booking booking = BookingMapper.fromBookingItemDto(bookingDto, item.get(), user, BookingStatus.WAITING);
+            Booking booking = BookingMapper.fromBookingDtoInput(bookingDto, item.get(), user, BookingStatus.WAITING);
             return BookingMapper.toBookingUserDto(bookingRepository.save(booking));
         }
     }
@@ -201,7 +201,7 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    public void checkBooking(BookingItemDto booking) {
+    public void checkBooking(BookingDtoInput booking) {
         if(booking.getEnd().isBefore(LocalDateTime.now())
                 || booking.getEnd().isBefore(booking.getStart())
                 || booking.getEnd().isEqual(booking.getStart())) {

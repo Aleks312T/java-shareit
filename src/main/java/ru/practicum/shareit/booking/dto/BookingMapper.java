@@ -13,15 +13,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class BookingMapper {
-    public static BookingItemDto toBookingItemDto(Booking booking) {
-        return BookingItemDto.builder()
+    public static BookingDtoInput toBookingDtoInput(Booking booking) {
+        return BookingDtoInput.builder()
                 .itemId(booking.getItem().getId())
                 .start(booking.getStart())
                 .end(booking.getEnd())
                 .build();
     }
 
-    public static Booking fromBookingItemDto(BookingItemDto bookingDto, Item item, User user, BookingStatus status) {
+    public static Booking fromBookingDtoInput(BookingDtoInput bookingDto, Item item, User user, BookingStatus status) {
         LocalDateTime start = bookingDto.getStart();
         LocalDateTime end = bookingDto.getEnd();
 
@@ -40,6 +40,13 @@ public class BookingMapper {
                 .item(item)
                 .booker(user)
                 .status(status)
+                .build();
+    }
+
+    public static BookingItemDto toBookingItemDto(Booking booking) {
+        return BookingItemDto.builder()
+                .bookerId(booking.getBooker().getId())
+                .id(booking.getId())
                 .build();
     }
 

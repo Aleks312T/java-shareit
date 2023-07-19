@@ -3,9 +3,11 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.dto.BookingDtoInput;
 import ru.practicum.shareit.booking.dto.BookingItemDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.comments.dto.CommentDto;
 import ru.practicum.shareit.comments.dto.CommentMapper;
@@ -13,6 +15,7 @@ import ru.practicum.shareit.comments.model.Comment;
 import ru.practicum.shareit.comments.repository.CommentRepository;
 import ru.practicum.shareit.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
+import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -21,6 +24,7 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -117,10 +121,12 @@ class ItemServiceImpl implements ItemService {
     public CommentDto createComment(CommentDto commentDto, Long userId, Long itemId) {
         User user = checkUser(userId);
         Item item = checkItem(itemId);
+        if(!bookingRepository.existsByItemIdAndBookerIdAndStatusAndEndBefore(
+                itemId, userId, BookingStatus.APPROVED, LocalDateTime.now()))
+            throw new ValidationException("Невозможно оставить комментарий");
+
         if(commentDto.getText() == null || commentDto.getText().isBlank())
             throw new IncorrectParameterException("Отсутствует входной текст");
-        if(commentDto.getAuthorName() == null || commentDto.getAuthorName().isBlank())
-            throw new IncorrectParameterException("Отсутствует автор");
         Comment comment = CommentMapper.fromCommentDto(commentDto, item, user);
         comment = commentRepository.save(comment);
         return CommentMapper.toCommentDto(comment);
