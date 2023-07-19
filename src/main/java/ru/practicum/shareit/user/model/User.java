@@ -10,7 +10,6 @@ import javax.validation.constraints.NotNull;
 @Table(name = "users")
 @Getter
 @Setter
-@RequiredArgsConstructor
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder

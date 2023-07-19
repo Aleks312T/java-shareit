@@ -3,6 +3,8 @@ package ru.practicum.shareit.item.dto;
 import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.booking.dto.BookingItemDto;
 import ru.practicum.shareit.comments.dto.CommentDto;
+import ru.practicum.shareit.comments.dto.CommentMapper;
+import ru.practicum.shareit.comments.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
@@ -31,6 +33,24 @@ public class ItemMapper {
                 .nextBooking(next)
                 .comments(comments)
                 .build();
+    }
+
+    public static ItemDto toItemDtoAllRegularComments
+            (Item item, BookingItemDto last, BookingItemDto next, List<Comment> comments) {
+        ItemDto result = ItemDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.getAvailable()).build();
+
+        if (comments != null)
+            result.setComments(CommentMapper.fromListComment(comments));
+        if (last != null)
+            result.setLastBooking(last);
+        if (next != null)
+            result.setNextBooking(next);
+
+        return result;
     }
 
     public static Item fromItemDto(ItemDto itemDto) {

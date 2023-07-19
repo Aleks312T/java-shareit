@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @Table(name = "requests")
 @Getter
 @Setter
-@RequiredArgsConstructor
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
