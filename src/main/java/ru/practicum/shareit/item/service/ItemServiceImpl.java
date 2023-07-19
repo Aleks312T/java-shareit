@@ -101,6 +101,7 @@ class ItemServiceImpl implements ItemService {
         User user = checkUser(userId);
         List<Item> items = itemRepository.findAllByOwnerId(userId);
         List<ItemDto> result = new ArrayList<>();
+        //Комментарий, чтобы пуш прошел
 //        List<Long> itemsId = items.stream().map(Item::getId).collect(Collectors.toList());
 //
 //        Map<Item, List<Comment>> comments = commentRepository.findAllByItemIdIn(itemsId)
