@@ -41,7 +41,6 @@ class ItemServiceImpl implements ItemService {
 
     private final BookingRepository bookingRepository;
 
-    // TODO добавить логирование
     @Transactional
     @Override
     public ItemDto create(Long userId, ItemDto itemDto) {
