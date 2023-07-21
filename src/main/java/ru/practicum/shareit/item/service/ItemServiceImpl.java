@@ -26,7 +26,9 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -100,37 +102,33 @@ class ItemServiceImpl implements ItemService {
         User user = checkUser(userId);
         List<Item> items = itemRepository.findAllByOwnerId(userId);
         List<ItemDto> result = new ArrayList<>();
-//        List<Long> itemsId = items.stream().map(Item::getId).collect(Collectors.toList());
-//
-//        Map<Item, List<Comment>> comments = commentRepository.findAllByItemIdIn(itemsId)
-//                .stream()
-//                .collect(Collectors.groupingBy(Comment::getItem));
-//
-//        List<Booking> bookings = bookingRepository
-//                .findAllByItemOwnerIdAndStatus(userId, BookingStatus.APPROVED);
-//        List<ItemDto> result = itemRepository.findAllByOwnerId(userId).stream()
-//                .map(item -> ItemMapper.toItemDtoAllRegularComments(item,
-//
-//                        bookings.stream()
-//                                .filter(booking -> Objects.equals(booking.getItem().getId(), item.getId()) &&
-//                                        booking.getStart().isBefore(LocalDateTime.now()))
-//                                .map(BookingMapper::toBookingItemDto)
-//                                .max(Comparator.comparing(BookingItemDto::getStart, LocalDateTime::compareTo))
-//                                .orElse(null),
-//
-//                        bookings.stream()
-//                                .filter(booking -> Objects.equals(booking.getItem().getId(), item.getId()) &&
-//                                        booking.getStart().isAfter(LocalDateTime.now()))
-//                                .map(BookingMapper::toBookingItemDto)
-//                                .min(Comparator.comparing(BookingItemDto::getStart, LocalDateTime::compareTo))
-//                                .orElse(null),
-//
-//                        comments.get(item).stream()
-//                                .filter(comment -> Objects.equals(comment.getItem().getId(), item.getId()))
-//                                .collect(Collectors.toList())))
-//                .collect(Collectors.toList());
+        List<Long> itemsId = items
+                .stream()
+                .map(Item::getId)
+                .collect(Collectors.toList());
+
+        Map<Item, List<Comment>> comments = commentRepository.findAllByItemIdIn(itemsId)
+                .stream()
+                .collect(Collectors.groupingBy(Comment::getItem));
+
+        Map<Item, Booking> lastBookings = bookingRepository
+                .getLastBookings(userId, LocalDateTime.now())
+                .stream()
+                .collect(Collectors.toMap(Booking::getItem, Function.identity()));
+
+        Map<Item, Booking> nextBookings = bookingRepository
+                .getNextBookings(userId, LocalDateTime.now())
+                .stream()
+                .collect(Collectors.toMap(Booking::getItem, Function.identity()));
+
         for (Item item : items) {
-            result.add(addBookingAndComment(item, userId));
+            ItemDto itemFullDto = ItemMapper.toItemDtoAllRegularComments(
+                    item,
+                    BookingMapper.toBookingItemDto(lastBookings.get(item)),
+                    BookingMapper.toBookingItemDto(nextBookings.get(item)),
+                    comments.get(item)
+            );
+            result.add(itemFullDto);
         }
         log.trace("Завершение вызова метода getAllUserItems");
         return result;

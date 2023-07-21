@@ -53,6 +53,36 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     Booking getNextBooking(@Param("idItem") Long id,
                            @Param("time") LocalDateTime time);
 
+    @Query(value = "SELECT b1.* " +
+            "FROM bookings b1 " +
+            "JOIN (" +
+                "SELECT item_id, MAX(start_date) as max_start_date " +
+                "FROM BOOKINGS b2 " +
+                "WHERE b2.ID in(" +
+                    "SELECT b3.id FROM BOOKINGS b3 " +
+                    "JOIN ITEMS i ON I.ID = B3.ITEM_ID " +
+                    "WHERE i.OWNER_ID = ? " +
+                    "AND b3.STATUS = 'APPROVED' " +
+                    "AND b3.START_DATE < ?) " +
+                "GROUP BY ITEM_ID) b2 " +
+            "ON b1.item_id = b2.item_id AND b1.start_date = b2.max_start_date", nativeQuery = true)
+    List<Booking> getLastBookings(Long ownerId, LocalDateTime startDate);
+
+    @Query(value = "SELECT b1.* " +
+            "FROM bookings b1 " +
+            "JOIN (" +
+                "SELECT item_id, MIN(start_date) as min_start_date " +
+                "FROM BOOKINGS b2 " +
+                "WHERE b2.ID in(" +
+                    "SELECT b3.id FROM BOOKINGS b3 " +
+                    "JOIN ITEMS i ON I.ID = B3.ITEM_ID " +
+                    "WHERE i.OWNER_ID = ? " +
+                    "AND b3.STATUS = 'APPROVED' " +
+                    "AND b3.START_DATE >= ?) " +
+                "GROUP BY ITEM_ID) b2 " +
+            "ON b1.item_id = b2.item_id AND b1.start_date = b2.min_start_date", nativeQuery = true)
+    List<Booking> getNextBookings(Long ownerId, LocalDateTime startDate);
+
     boolean existsByItemIdAndBookerIdAndStatusAndEndBefore(Long itemId, Long userId, BookingStatus status, LocalDateTime endBefore);
 
     List<Booking> findAllByItemOwnerIdAndStatus(Long userId, BookingStatus approved);
