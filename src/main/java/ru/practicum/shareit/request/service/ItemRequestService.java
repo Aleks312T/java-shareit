@@ -7,9 +7,9 @@ import ru.practicum.shareit.request.model.ItemRequest;
 import java.util.List;
 
 public interface ItemRequestService {
-    ItemRequestDtoInput create(Long userId, ItemRequest itemRequest);
+    ItemRequestDtoInput create(Long userId, ItemRequestDtoInput itemRequest);
 
-    List<ItemRequestFullDto> getAll(Long userId, boolean filter);
+    List<ItemRequestFullDto> getAll(Long userId);
 
     List<ItemRequestFullDto> getSort(Long userId, Integer from, Integer size);
 

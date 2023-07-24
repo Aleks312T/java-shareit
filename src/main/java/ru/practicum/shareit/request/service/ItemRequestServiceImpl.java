@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.IncorrectParameterException;
+import ru.practicum.shareit.exceptions.ObjectNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -35,26 +36,26 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     @Transactional
-    public ItemRequestDtoInput create(Long userId, ItemRequest itemRequest) {
+    public ItemRequestDtoInput create(Long userId, ItemRequestDtoInput requestDtoInput) {
         //Не использую функцию, чтобы не обращаться к БД два раза
         //checkUserId(userId);
         Optional<User> user = userRepository.findById(userId);
         if (user.isEmpty()) {
-            throw new IncorrectParameterException("Пользователь с Id = " + userId + " не найден");
+            throw new ObjectNotFoundException("Пользователь с Id = " + userId + " не найден");
         }
-        //Отдельная проверка вместо аннотации, чтобы прокинуть код 400
-        if (itemRequest.getDescription().isEmpty()) {
-            throw new IncorrectParameterException("Отсутствует описание");
-        }
+        ItemRequest itemRequest = ItemRequestMapper.fromItemRequestDtoInput(
+                requestDtoInput,
+                user.get(),
+                LocalDateTime.now());
 
-        itemRequest.setCreated(LocalDateTime.now());
-        itemRequest.setRequestor(user.get());
+        itemRequest = itemRequestRepository.save(itemRequest);
+        log.trace("");
         return ItemRequestMapper.toItemRequestDtoInput(itemRequest);
     }
 
     @Override
     @Transactional
-    public List<ItemRequestFullDto> getAll(Long userId, boolean filter) {
+    public List<ItemRequestFullDto> getAll(Long userId) {
         checkUserId(userId);
         List<ItemRequest> itemRequests = itemRequestRepository.findAllByRequestor_Id(userId);
         return toItemRequestFullDtoResponse(itemRequests);

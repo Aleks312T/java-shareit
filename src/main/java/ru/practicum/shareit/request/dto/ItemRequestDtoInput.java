@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 @Data
 @AllArgsConstructor
@@ -13,9 +12,8 @@ import javax.validation.constraints.NotNull;
 public class ItemRequestDtoInput {
     private Long id;
 
-    @NotBlank
+    @NotBlank(message = "Описание не может быть пустым")
     private String description;
 
-    @NotNull
     private Long userId;
 }
