@@ -11,6 +11,8 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @Builder
 public class ItemRequestDtoInput {
+    private Long id;
+
     @NotBlank
     private String description;
 
