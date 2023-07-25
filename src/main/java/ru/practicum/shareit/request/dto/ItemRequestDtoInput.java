@@ -16,4 +16,5 @@ public class ItemRequestDtoInput {
     private String description;
 
     private Long userId;
+
 }

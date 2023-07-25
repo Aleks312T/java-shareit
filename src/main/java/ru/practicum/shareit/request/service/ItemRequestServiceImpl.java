@@ -2,9 +2,14 @@ package ru.practicum.shareit.request.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
+import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -19,6 +24,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +42,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     @Transactional
-    public ItemRequestDtoInput create(Long userId, ItemRequestDtoInput requestDtoInput) {
+    public ItemRequestFullDto create(Long userId, ItemRequestDtoInput requestDtoInput) {
         //Не использую функцию, чтобы не обращаться к БД два раза
         //checkUserId(userId);
         Optional<User> user = userRepository.findById(userId);
@@ -50,7 +56,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
         itemRequest = itemRequestRepository.save(itemRequest);
         log.trace("");
-        return ItemRequestMapper.toItemRequestDtoInput(itemRequest);
+        return ItemRequestMapper.toItemRequestWithItemsDto(itemRequest, new ArrayList<>());
     }
 
     @Override
@@ -64,20 +70,35 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     @Transactional
     public List<ItemRequestFullDto> getSort(Long userId, Integer from, Integer size) {
-        return null;
+        if (from % size != 0) {
+            throw new IncorrectParameterException("Некорректный ввод страниц и размеров");
+        }
+        Pageable pageable = PageRequest.of(from > 0 ? from / size : 0, size, Sort.by("created").descending());
+        Page<ItemRequest> itemRequestPage = itemRequestRepository.findAllByRequestor_IdNot(userId, pageable);
+        List<ItemRequest> itemRequests = itemRequestPage.getContent();
+
+        return toItemRequestFullDtoResponse(itemRequests);
     }
 
     @Override
     @Transactional
     public ItemRequestFullDto getById(Long userId, Long requestId) {
-        return null;
+        checkUserId(userId);
+
+        ItemRequest itemRequest = itemRequestRepository.findById(requestId).orElseThrow(
+                () -> new ObjectNotFoundException("Запрос на предмет с id = " + requestId + " не найден."));
+        List<ItemDto> itemsForRequestDto = itemRepository.findAllByRequestId(requestId)
+                        .stream()
+                        .map(ItemMapper::toItemDto)
+                        .collect(Collectors.toList());
+        return ItemRequestMapper.toItemRequestWithItemsDto(itemRequest, itemsForRequestDto);
     }
 
     public void checkUserId(Long id) {
         log.trace("Вызов метода checkUserEmail с Long = {}", id);
         Optional<User> user = userRepository.findById(id);
         if (user.isEmpty()) {
-            throw new IncorrectParameterException("Пользователь с Id = " + id + " не найден");
+            throw new ObjectNotFoundException("Пользователь с Id = " + id + " не найден");
         }
     }
 

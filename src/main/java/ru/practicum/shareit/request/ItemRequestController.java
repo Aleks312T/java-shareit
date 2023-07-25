@@ -22,7 +22,7 @@ public class ItemRequestController {
     private final ItemRequestService itemRequestService;
 
     @PostMapping
-    public ItemRequestDtoInput createRequest(@Valid @RequestBody ItemRequestDtoInput itemRequestDto,
+    public ItemRequestFullDto createRequest(@Valid @RequestBody ItemRequestDtoInput itemRequestDto,
                                              @RequestHeader("X-Sharer-User-Id") long userId) {
         return itemRequestService.create(userId, itemRequestDto);
     }
