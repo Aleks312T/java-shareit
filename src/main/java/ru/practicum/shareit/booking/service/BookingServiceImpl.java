@@ -2,6 +2,8 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDtoInput;
 import ru.practicum.shareit.booking.dto.BookingMapper;
@@ -104,37 +106,45 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     @Override
-    public List<BookingUserDto> getAllOwnerBookings(Long ownerId, String state) {
+    public List<BookingUserDto> getAllOwnerBookings(Long ownerId, String state, Integer fromElement, Integer size) {
         log.debug("Вызов метода getAllOwnerBookings с ownerId = {}, state = {}", ownerId, state);
         checkUser(ownerId);
         List<Booking> result;
+
+        checkPages(fromElement, size);
+        int fromPage = fromElement / size;
+        Pageable pageable = PageRequest.of(fromPage, size);
         try {
             BookingState status = BookingState.valueOf(state);
             switch (status) {
                 case ALL:
                     result = bookingRepository
-                            .findAllByItemOwnerIdOrderByStartDesc(ownerId);
+                            .findAllByItemOwnerIdOrderByStartDesc(ownerId, pageable);
                     break;
                 case PAST:
                     result = bookingRepository
-                            .findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(ownerId, LocalDateTime.now());
+                            .findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(
+                                    ownerId, LocalDateTime.now(), pageable);
                     break;
                 case FUTURE:
                     result = bookingRepository
-                            .findAllByItemOwnerIdAndStartAfterOrderByStartDesc(ownerId, LocalDateTime.now());
+                            .findAllByItemOwnerIdAndStartAfterOrderByStartDesc(
+                                    ownerId, LocalDateTime.now(), pageable);
                     break;
                 case CURRENT:
                     result = bookingRepository
-                            .findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(ownerId,
-                            LocalDateTime.now(), LocalDateTime.now());
+                            .findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(
+                                    ownerId, LocalDateTime.now(), LocalDateTime.now(), pageable);
                     break;
                 case WAITING:
                     result = bookingRepository
-                            .findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.WAITING);
+                            .findAllByItemOwnerIdAndStatusOrderByStartDesc(
+                                    ownerId, BookingStatus.WAITING, pageable);
                     break;
                 case REJECTED:
                     result = bookingRepository
-                            .findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.REJECTED);
+                            .findAllByItemOwnerIdAndStatusOrderByStartDesc(
+                                    ownerId, BookingStatus.REJECTED, pageable);
                     break;
                 default:
                     throw new IncorrectParameterException("Unknown state: " + state);
@@ -148,46 +158,43 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     @Override
-    public List<BookingUserDto> getAllBookerBookings(Long bookerId, String state) {
+    public List<BookingUserDto> getAllBookerBookings(Long bookerId, String state, Integer fromElement, Integer size) {
         log.debug("Вызов метода getAllBookerBookings с bookerId = {}, state = {}", bookerId, state);
         checkUser(bookerId);
         List<Booking> result;
-        try {
-            BookingState status = BookingState.valueOf(state);
-            switch (status) {
-                case ALL:
-                    result = bookingRepository
-                            .findAllByBookerIdOrderByStartDesc(bookerId);
-                    break;
-                case PAST:
-                    result = bookingRepository
-                            .findAllByBookerIdAndEndBeforeOrderByStartDesc(bookerId, LocalDateTime.now());
-                    break;
-                case FUTURE:
-                    result = bookingRepository
-                            .findAllByBookerIdAndStartAfterOrderByStartDesc(bookerId, LocalDateTime.now());
-                    break;
-                case CURRENT:
-                    result = bookingRepository
-                            .findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(bookerId,
-                            LocalDateTime.now(), LocalDateTime.now());
-                    break;
-                case WAITING:
-                    result = bookingRepository
-                            .findAllByBookerIdAndStatusOrderByStartDesc(bookerId, BookingStatus.WAITING);
-                    break;
-                case REJECTED:
-                    result = bookingRepository
-                            .findAllByBookerIdAndStatusOrderByStartDesc(bookerId, BookingStatus.REJECTED);
-                    break;
-                default:
-                    throw new IncorrectParameterException("Unknown state: " + state);
-            }
-            log.trace("Завершение вызова метода getAllBookerBookings");
-            return BookingMapper.fromListBooking(result);
-        } catch (Exception e) {
-            throw new IncorrectParameterException("Unknown state: " + state);
+
+        checkPages(fromElement, size);
+        int fromPage = fromElement / size;
+        Pageable pageable = PageRequest.of(fromPage, size);
+        switch (state.toUpperCase()) {
+            case "ALL":
+                result = bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId, pageable);
+                break;
+            case "PAST":
+                result = bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(
+                        bookerId, LocalDateTime.now(), pageable);
+                break;
+            case "FUTURE":
+                result = bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(
+                        bookerId, LocalDateTime.now(), pageable);
+                break;
+            case "CURRENT":
+                result = bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
+                        bookerId, LocalDateTime.now(), LocalDateTime.now(), pageable);
+                break;
+            case "WAITING":
+                result = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(
+                        bookerId, BookingStatus.WAITING, pageable);
+                break;
+            case "REJECTED":
+                result = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(
+                        bookerId, BookingStatus.REJECTED, pageable);
+                break;
+            default:
+                throw new ValidationException(String.format("Unknown state: %s", state.toUpperCase()));
         }
+        log.trace("Завершение вызова метода getAllOwnerBookings");
+        return BookingMapper.fromListBooking(result);
     }
 
     public User checkUser(Long userId) {
@@ -215,6 +222,13 @@ public class BookingServiceImpl implements BookingService {
                 || booking.getEnd().isBefore(booking.getStart())
                 || booking.getEnd().isEqual(booking.getStart())) {
             throw new IncorrectParameterException("Ошибка во времени бронирования");
+        }
+    }
+
+    public void checkPages(Integer fromElement, Integer size) {
+        log.trace("Вызов метода checkPages");
+        if (fromElement % size != 0) {
+            throw new IncorrectParameterException("Некорректный ввод страниц и размеров");
         }
     }
 
