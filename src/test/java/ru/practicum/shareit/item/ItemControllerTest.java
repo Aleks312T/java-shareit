@@ -65,7 +65,7 @@ public class ItemControllerTest {
                 .available(true)
                 .build();
         anotherItem = ItemDto.builder()
-                .id(1L)
+                .id(2L)
                 .name("anotherItem1")
                 .description("anotherItem 1 description")
                 .available(true)

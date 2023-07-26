@@ -80,7 +80,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     @Override
-    public BookingUserDto confirm(Long bookingId, long userId, boolean approved) {
+    public BookingUserDto confirm(Long bookingId, Long userId, Boolean approved) {
         log.debug("Вызов метода confirm с bookingId = {}, userId = {}", bookingId, userId);
         checkUser(userId);
         Optional<Booking> booking = bookingRepository.findById(bookingId);
@@ -212,7 +212,7 @@ public class BookingServiceImpl implements BookingService {
         if (booking.getEnd().isBefore(LocalDateTime.now())
                 || booking.getEnd().isBefore(booking.getStart())
                 || booking.getEnd().isEqual(booking.getStart())) {
-            throw new IncorrectParameterException("Ошибка во времени бронирования");
+            throw new ValidationException("Ошибка во времени бронирования");
         }
     }
 
@@ -221,14 +221,14 @@ public class BookingServiceImpl implements BookingService {
         if (booking.getEnd().isBefore(LocalDateTime.now())
                 || booking.getEnd().isBefore(booking.getStart())
                 || booking.getEnd().isEqual(booking.getStart())) {
-            throw new IncorrectParameterException("Ошибка во времени бронирования");
+            throw new ValidationException("Ошибка во времени бронирования");
         }
     }
 
     public void checkPages(Integer fromElement, Integer size) {
         log.trace("Вызов метода checkPages");
         if (fromElement % size != 0) {
-            throw new IncorrectParameterException("Некорректный ввод страниц и размеров");
+            throw new ValidationException("Некорректный ввод страниц и размеров");
         }
     }
 
