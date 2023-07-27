@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.practicum.shareit.exceptions.ConflictException;
 import ru.practicum.shareit.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -109,7 +110,7 @@ class UserServiceImplTest {
         userDto.setEmail("updatedEmail@mail.ru");
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user1));
-        when(userRepository.findAll()).thenReturn(Collections.singletonList(user1));
+        when(userRepository.save(any())).thenReturn(user1);
 
         UserDto updatedUserDto = userService.update(user1.getId(), userDto);
 
@@ -139,18 +140,19 @@ class UserServiceImplTest {
 
     @Test
     void updateUserWithBlankName() {
-        UserDto userDto = UserMapper.toUserDto(user1);
-        userDto.setName("");
+        UserDto userDto = UserMapper.toUserDto(User.builder()
+                        .name("")
+                        .email(user2.getEmail())
+                .build());
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user1));
+        when(userRepository.save(user1)).thenReturn(user1);
 
-        Exception exception = assertThrows(
-                IncorrectParameterException.class, () -> userService.update(user1.getId(), userDto));
+        UserDto updatedUserDto = userService.update(user1.getId(), userDto);
 
-        String expectedMessage = "Имя пользователя не может быть пустым";
-        String actualMessage = exception.getMessage();
-
-        assertTrue(actualMessage.contains(expectedMessage));
+        //Имя старое, email - новый
+        assertEquals(user1.getName(), updatedUserDto.getName());
+        assertEquals(userDto.getEmail(), updatedUserDto.getEmail());
 
         verify(userRepository, times(1)).findById(anyLong());
     }
@@ -161,10 +163,10 @@ class UserServiceImplTest {
         userDto.setEmail(user2.getEmail());
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user1));
-        when(userRepository.findAll()).thenReturn(Arrays.asList(user1, user2));
+        when(userRepository.findByEmailContainingIgnoreCase(any())).thenReturn(List.of(user1, user2));
 
         Exception exception = assertThrows(
-                IncorrectParameterException.class, () -> userService.update(user1.getId(), userDto));
+                ConflictException.class, () -> userService.update(user1.getId(), userDto));
 
         String expectedMessage = "Электронная почта уже занята";
         String actualMessage = exception.getMessage();

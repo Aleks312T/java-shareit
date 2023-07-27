@@ -3,6 +3,7 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exceptions.ConflictException;
 import ru.practicum.shareit.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -67,16 +68,19 @@ public class UserServiceImpl implements UserService {
             throw new ObjectNotFoundException("Пользователь с id = " + id + " не найден");
         } else {
             User newUser = user.get();
-            if (checkUserEmail(newUser.getEmail(), userDto.getId()))
-                throw new IncorrectParameterException("Электронная почта уже занята");
-            if (userDto.getName() != null) {
+            if (!checkUserEmail(userDto.getEmail(), id)) {
+                throw new ConflictException("Электронная почта уже занята");
+            }
+
+            if (userDto.getName() != null && !Objects.equals(userDto.getName(), "")) {
                 newUser.setName(userDto.getName());
             }
-            if (userDto.getEmail() != null) {
+            if (userDto.getEmail() != null && !Objects.equals(userDto.getEmail(), "")) {
                 newUser.setEmail(userDto.getEmail());
             }
             log.trace("Завершение вызова метода update");
-            return UserMapper.toUserDto(userRepository.save(newUser));
+            User result = userRepository.save(newUser);
+            return UserMapper.toUserDto(result);
         }
 
     }
