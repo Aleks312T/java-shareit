@@ -89,9 +89,19 @@ public class UserServiceImpl implements UserService {
         log.trace("Завершение вызова метода delete");
     }
 
+    public void checkUserEmail(String email) {
+        log.trace("Вызов метода checkUserEmail с email = {}", email);
+        List<User> sameEmailUsers = userRepository.findByEmailContainingIgnoreCase(email);
+        if (!sameEmailUsers.isEmpty()) {
+            throw new IncorrectParameterException("Электронная почта уже занята");
+        }
+    }
+
     public boolean checkUserEmail(String email, Long id) {
         log.trace("Вызов метода checkUserEmail с email = {}, id = {}", email, id);
         List<User> sameEmailUsers = userRepository.findByEmailContainingIgnoreCase(email);
+        if (sameEmailUsers.isEmpty())
+            return true;
         for (User user : sameEmailUsers) {
             if (!Objects.equals(user.getId(), id)) {
                 return false;
