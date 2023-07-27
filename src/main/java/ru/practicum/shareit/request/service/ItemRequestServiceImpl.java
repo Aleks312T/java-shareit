@@ -85,7 +85,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         checkUserId(userId);
 
         ItemRequest itemRequest = itemRequestRepository.findById(requestId).orElseThrow(
-                () -> new ObjectNotFoundException("Запрос на предмет с id = " + requestId + " не найден."));
+                () -> new ObjectNotFoundException("Запрос на предмет с Id = " + requestId + " не найден."));
         List<ItemDto> itemsForRequestDto = itemRepository.findAllByRequestId(requestId)
                         .stream()
                         .map(ItemMapper::toItemDto)

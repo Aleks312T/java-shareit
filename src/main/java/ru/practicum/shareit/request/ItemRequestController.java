@@ -8,7 +8,6 @@ import ru.practicum.shareit.request.dto.ItemRequestFullDto;
 import ru.practicum.shareit.request.service.ItemRequestService;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
@@ -23,7 +22,7 @@ public class ItemRequestController {
 
     @PostMapping
     public ItemRequestFullDto createRequest(@Valid @RequestBody ItemRequestDtoInput itemRequestDto,
-                                             @RequestHeader("X-Sharer-User-Id") long userId) {
+                                            @RequestHeader("X-Sharer-User-Id") long userId) {
         return itemRequestService.create(userId, itemRequestDto);
     }
 
