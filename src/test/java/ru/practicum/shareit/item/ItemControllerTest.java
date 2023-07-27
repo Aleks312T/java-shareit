@@ -32,7 +32,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = ItemController.class)
 public class ItemControllerTest {
-    private UserDto user;
     private ItemDto item;
     private ItemDto anotherItem;
     private ItemDto itemFull;
@@ -52,11 +51,6 @@ public class ItemControllerTest {
                 .text("Comment text")
                 .authorName("User 1 name")
                 .created(LocalDateTime.now())
-                .build();
-        user = UserDto.builder()
-                .id(1L)
-                .name("User 1 name")
-                .email("user1@email.com")
                 .build();
         item = ItemDto.builder()
                 .id(1L)

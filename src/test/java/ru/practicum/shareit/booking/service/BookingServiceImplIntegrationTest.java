@@ -1,4 +1,4 @@
-package ru.practicum.shareit.service;
+package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDtoInput;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -33,14 +32,8 @@ public class BookingServiceImplIntegrationTest {
     private final UserService userService;
     private final ItemService itemService;
 
-    @BeforeEach
-    void beforeEach() {
-
-    }
-
     @Test
     void testAddNew() {
-        //given
         UserDto userDto1 = userService.create(UserDto.builder()
                 .name("User 1 name")
                 .email("user1@email.com")
@@ -57,7 +50,7 @@ public class BookingServiceImplIntegrationTest {
                         .available(true)
                         .build()
                 );
-        //when
+
         LocalDateTime start = LocalDateTime.now().plusHours(2);
         LocalDateTime end = LocalDateTime.now().plusHours(3);
         BookingDtoInput bookingDto = BookingDtoInput.builder()
@@ -67,7 +60,7 @@ public class BookingServiceImplIntegrationTest {
                 .build();
         Long bookerId = userDto2.getId();
         bookingService.create(bookerId, bookingDto);
-        //then
+
         TypedQuery<Booking> query = entityManager.createQuery("SELECT b from Booking b ", Booking.class);
         List<Booking> actualBookings = query.getResultList();
 

@@ -32,10 +32,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 @WebMvcTest(controllers = BookingController.class)
 public class BookingControllerTest {
-    private UserDto user1;
-    private UserDto user2;
-    private ItemDto item1;
-    private ItemDto item2;
     private BookingUserDto booking1;
     private BookingUserDto booking2;
 
@@ -50,23 +46,23 @@ public class BookingControllerTest {
 
     @BeforeEach
     void setUp(WebApplicationContext wac) {
-        user1 = UserDto.builder()
+        UserDto user1 = UserDto.builder()
                 .id(1L)
                 .name("User 1 name")
                 .email("user1@email.com")
                 .build();
-        user2 = UserDto.builder()
+        UserDto user2 = UserDto.builder()
                 .id(1L)
                 .name("User 1 name")
                 .email("user1@email.com")
                 .build();
-        item1 = ItemDto.builder()
+        ItemDto item1 = ItemDto.builder()
                 .id(1L)
                 .name("Item1")
                 .description("Item 1 description")
                 .available(true)
                 .build();
-        item2 = ItemDto.builder()
+        ItemDto item2 = ItemDto.builder()
                 .id(1L)
                 .name("Item1")
                 .description("Item 1 description")

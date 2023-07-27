@@ -80,7 +80,7 @@ class UserServiceImplTest {
         Exception exception = assertThrows(
                 ObjectNotFoundException.class, () -> userService.get(10L));
 
-        String expectedMessage = String.format("Пользователь с id = %s не найден", 10L);
+        String expectedMessage = "Пользователь с id = " + 10L + " не найден";
         String actualMessage = exception.getMessage();
 
         assertTrue(actualMessage.contains(expectedMessage));
@@ -129,7 +129,7 @@ class UserServiceImplTest {
         Exception exception = assertThrows(
                 ObjectNotFoundException.class, () -> userService.update(10L, userDto));
 
-        String expectedMessage = String.format("Пользователь с id = %s не найден", 10L);
+        String expectedMessage = "Пользователь с id = " + 10L + " не найден";
         String actualMessage = exception.getMessage();
 
         assertTrue(actualMessage.contains(expectedMessage));

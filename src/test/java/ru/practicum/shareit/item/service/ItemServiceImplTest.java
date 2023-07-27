@@ -1,20 +1,15 @@
 package ru.practicum.shareit.item.service;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.comments.dto.CommentDto;
-import ru.practicum.shareit.comments.dto.CommentMapper;
 import ru.practicum.shareit.comments.model.Comment;
 import ru.practicum.shareit.comments.repository.CommentRepository;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
@@ -29,7 +24,6 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -57,8 +51,6 @@ public class ItemServiceImplTest {
     private ItemRequest itemRequest1;
     private Item item1;
     private Item item2;
-    private Booking booking1;
-    private Comment comment1;
 
     @BeforeEach
     void beforeEach() {
@@ -93,20 +85,6 @@ public class ItemServiceImplTest {
                 .available(true)
                 .owner(user2)
                 .request(itemRequest1)
-                .build();
-        booking1 = Booking.builder()
-                .id(1L)
-                .start(LocalDateTime.now().minusHours(24))
-                .end(LocalDateTime.now().minusHours(20))
-                .item(item1)
-                .booker(user2)
-                .status(BookingStatus.APPROVED)
-                .build();
-        comment1 = Comment.builder()
-                .id(1L)
-                .text("text text text")
-                .item(item1)
-                .authorName(user2)
                 .build();
     }
 
@@ -206,7 +184,7 @@ public class ItemServiceImplTest {
                 ObjectNotFoundException.class,
                 () -> itemService.create(10L, itemDto));
 
-        String expectedMessage = String.format("Пользователь с id = %s не найден", 10L);
+        String expectedMessage = "Пользователь с id = " + 10L + " не найден";
         String actualMessage = exception.getMessage();
 
         assertTrue(actualMessage.contains(expectedMessage));

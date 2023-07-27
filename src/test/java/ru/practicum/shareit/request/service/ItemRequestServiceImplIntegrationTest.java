@@ -25,7 +25,6 @@ public class ItemRequestServiceImplIntegrationTest {
 
     @Test
     void testGetById() {
-        //given
         UserDto userDto1 = userService.create(UserDto.builder()
                 .name("User 1 name")
                 .email("user1@email.com")
@@ -58,10 +57,11 @@ public class ItemRequestServiceImplIntegrationTest {
                         .requestId(itemRequest.getId())
                         .build()
                 );
-        //when
-        ItemRequestFullDto actualRequest = itemRequestService.getById(itemRequest.getId(),
-                itemRequest.getRequestor().getId());
-        //then
+
+        ItemRequestFullDto actualRequest = itemRequestService.getById(
+                itemRequest.getRequestor().getId(),
+                itemRequest.getId());
+
         assertThat(actualRequest.getId(), equalTo(itemRequest.getId()));
         assertThat(actualRequest.getDescription(), equalTo(itemRequest.getDescription()));
         assertThat(actualRequest.getCreated(), equalTo(itemRequest.getCreated()));

@@ -1,6 +1,5 @@
 package ru.practicum.shareit.request.service;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +22,6 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,7 +41,6 @@ public class ItemRequestServiceImplTest {
     private UserRepository userRepository;
 
     private User user1;
-    private User user2;
     private ItemRequest itemRequest1;
     private ItemRequest itemRequest2;
     private ItemRequestDtoInput itemRequestDtoInput;
@@ -58,7 +55,7 @@ public class ItemRequestServiceImplTest {
                 .name("User1 name")
                 .email("user1@email.ru")
                 .build();
-        user2 = User.builder()
+        User user2 = User.builder()
                 .id(2L)
                 .name("User2 name")
                 .email("user2@email.ru")

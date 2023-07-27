@@ -1,7 +1,6 @@
 package ru.practicum.shareit.request;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -21,8 +20,6 @@ import ru.practicum.shareit.user.model.User;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -42,7 +39,6 @@ public class ItemRequestControllerTest {
     private ItemRequestService requestService;
 
     private User user1;
-    private UserDto userDto;
     private ItemRequest itemRequest1;
     private ItemRequest itemRequest2;
     private ItemRequestFullDto itemRequestDto;
@@ -55,7 +51,6 @@ public class ItemRequestControllerTest {
                 .name("User1 name")
                 .email("user1@email.ru")
                 .build();
-        userDto = UserMapper.toUserDto(user1);
         itemRequest1 = ItemRequest.builder()
                 .id(1L)
                 .description("Item request 1 description")
