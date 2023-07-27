@@ -14,7 +14,4 @@ public class ItemRequestDtoInput {
 
     @NotBlank(message = "Описание не может быть пустым")
     private String description;
-
-    private Long userId;
-
 }

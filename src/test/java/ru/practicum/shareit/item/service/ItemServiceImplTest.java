@@ -21,13 +21,16 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
@@ -272,5 +275,26 @@ public class ItemServiceImplTest {
         assertThat(actualComment.getCreated(), equalTo(expectedComment.getCreated()));
     }
 
+    @Test
+    void searchItemsTest() throws Exception {
+        List<ItemDto> items = Collections.singletonList(ItemMapper.toItemDto(item1));
+        when(itemRepository.search("item"))
+                .thenReturn(Collections.singletonList(item1));
 
+        List<ItemDto> result = itemService.search("item");
+        assertThat(result, equalTo(items));
+    }
+
+    @Test
+    void searchItemsTextIsNullTest() throws Exception {
+        Exception exception = assertThrows(
+                NullPointerException.class,
+                () -> itemService.search(null));
+    }
+
+    @Test
+    void searchItemsWithoutTextTest() throws Exception {
+        List<ItemDto> result = new ArrayList<>();
+        assertThat(result, equalTo(itemService.search("")));
+    }
 }

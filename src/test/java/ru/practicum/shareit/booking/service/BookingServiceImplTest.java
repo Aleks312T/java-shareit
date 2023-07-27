@@ -9,6 +9,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.dto.BookingDtoInput;
+import ru.practicum.shareit.booking.dto.BookingItemDto;
+import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.dto.BookingUserDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -569,5 +571,27 @@ public class BookingServiceImplTest {
                 .findAllByItemOwnerIdAndStatusOrderByStartDesc(
                         Mockito.anyLong(), Mockito.any(), Mockito.any(Pageable.class));
         Mockito.verifyNoMoreInteractions(userRepository, bookingRepository);
+    }
+
+    @Test
+    void bookingItemDtoTest() {
+        BookingDtoInput input = BookingDtoInput.builder()
+                .start(start)
+                .end(end)
+                .itemId(item1.getId())
+                .build();
+
+        Booking between = BookingMapper.fromBookingDtoInput(input, item1, user1, BookingStatus.APPROVED);
+
+        assertThat(between.getStart(), equalTo(input.getStart()));
+        assertThat(between.getEnd(), equalTo(input.getEnd()));
+        assertThat(between.getStatus(), equalTo(BookingStatus.APPROVED));
+        assertThat(between.getItem().getId(), equalTo(input.getItemId()));
+
+        BookingItemDto betweenDto = BookingMapper.toBookingItemDto(between);
+
+        assertThat(betweenDto.getStart(), equalTo(between.getStart()));
+        assertThat(betweenDto.getEnd(), equalTo(between.getEnd()));
+        assertThat(betweenDto.getBookerId(), equalTo(user1.getId()));
     }
 }

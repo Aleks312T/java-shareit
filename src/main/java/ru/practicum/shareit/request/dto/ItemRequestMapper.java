@@ -10,14 +10,6 @@ import java.util.List;
 
 @UtilityClass
 public class ItemRequestMapper {
-    public static ItemRequestDtoInput toItemRequestDtoInput(ItemRequest request) {
-        return ItemRequestDtoInput.builder()
-                .id(request.getId())
-                .description(request.getDescription())
-                .userId(request.getRequestor().getId())
-                .build();
-    }
-
     public static ItemRequest fromItemRequestDtoInput(ItemRequestDtoInput request, User user, LocalDateTime time) {
         return ItemRequest.builder()
                 .id(request.getId())

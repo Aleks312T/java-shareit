@@ -34,10 +34,4 @@ public class Comment {
 
     private LocalDateTime created = LocalDateTime.now();
 
-    public Comment(String text, Item item, User author, LocalDateTime created) {
-        this.text = text;
-        this.item = item;
-        this.authorName = author;
-        this.created = created;
-    }
 }

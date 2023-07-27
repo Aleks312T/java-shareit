@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.ConflictException;
-import ru.practicum.shareit.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
@@ -82,7 +81,6 @@ public class UserServiceImpl implements UserService {
             User result = userRepository.save(newUser);
             return UserMapper.toUserDto(result);
         }
-
     }
 
     @Override
@@ -91,14 +89,6 @@ public class UserServiceImpl implements UserService {
         log.debug("Вызов метода delete");
         userRepository.deleteById(id);
         log.trace("Завершение вызова метода delete");
-    }
-
-    public void checkUserEmail(String email) {
-        log.trace("Вызов метода checkUserEmail с email = {}", email);
-        List<User> sameEmailUsers = userRepository.findByEmailContainingIgnoreCase(email);
-        if (!sameEmailUsers.isEmpty()) {
-            throw new IncorrectParameterException("Электронная почта уже занята");
-        }
     }
 
     public boolean checkUserEmail(String email, Long id) {
