@@ -31,7 +31,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
-
 @ExtendWith(MockitoExtension.class)
 public class BookingServiceImplTest {
     private final LocalDateTime start = LocalDateTime.now().plusMinutes(30);
