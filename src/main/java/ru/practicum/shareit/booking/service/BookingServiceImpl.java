@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDtoInput;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.dto.BookingState;
@@ -12,13 +13,14 @@ import ru.practicum.shareit.booking.dto.BookingUserDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.exceptions.*;
+import ru.practicum.shareit.exceptions.IncorrectParameterException;
+import ru.practicum.shareit.exceptions.ObjectNotFoundException;
+import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -67,7 +69,7 @@ public class BookingServiceImpl implements BookingService {
         if (booking.isEmpty()) {
             throw new ObjectNotFoundException("Бронирование с id = " + bookingId + " не найдено.");
         } else {
-            checkBooking(booking.get());
+            //checkBooking(booking.get());
             if (!booking.get().getBooker().getId().equals(userId)
                     && !booking.get().getItem().getOwner().getId().equals(userId)) {
                 // UnauthorizedAccessException логичнее, но тесты считают иначе
@@ -104,7 +106,7 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public List<BookingUserDto> getAllOwnerBookings(Long ownerId, String state, Integer fromElement, Integer size) {
         log.debug("Вызов метода getAllOwnerBookings с ownerId = {}, state = {}", ownerId, state);
@@ -156,7 +158,7 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public List<BookingUserDto> getAllBookerBookings(Long bookerId, String state, Integer fromElement, Integer size) {
         log.debug("Вызов метода getAllBookerBookings с bookerId = {}, state = {}", bookerId, state);
@@ -207,22 +209,34 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    public void checkBooking(Booking booking) {
-        log.trace("Вызов метода checkBooking");
-        if (booking.getEnd().isBefore(LocalDateTime.now())
-                || booking.getEnd().isBefore(booking.getStart())
-                || booking.getEnd().isEqual(booking.getStart())) {
-            throw new ValidationException("Ошибка во времени бронирования");
-        }
-    }
+//    public void checkBooking(Booking booking) {
+//        log.trace("Вызов метода checkBooking");
+//        if (booking.getEnd().isBefore(LocalDateTime.now()))
+//            throw new ValidationException("Ошибка во времени бронирования: " +
+//                    "оно должно закончиться в будущем времени.");
+//        else
+//        if (booking.getEnd().isBefore(booking.getStart()))
+//            throw new ValidationException("Ошибка во времени бронирования: " +
+//                    "конец бронирования должен быть после его начала.");
+//        else
+//        if (booking.getEnd().isEqual(booking.getStart()))
+//            throw new ValidationException("Ошибка во времени бронирования: " +
+//                    "время начала не может совпадать с временем окончания. ");
+//    }
 
     public void checkBooking(BookingDtoInput booking) {
         log.trace("Вызов метода checkBooking");
-        if (booking.getEnd().isBefore(LocalDateTime.now())
-                || booking.getEnd().isBefore(booking.getStart())
-                || booking.getEnd().isEqual(booking.getStart())) {
-            throw new ValidationException("Ошибка во времени бронирования");
-        }
+        if (booking.getEnd().isBefore(LocalDateTime.now()))
+            throw new ValidationException("Ошибка во времени бронирования: " +
+                    "оно должно закончиться в будущем времени.");
+        else
+        if (booking.getEnd().isBefore(booking.getStart()))
+            throw new ValidationException("Ошибка во времени бронирования: " +
+                    "конец бронирования должен быть после его начала.");
+        else
+        if (booking.getEnd().isEqual(booking.getStart()))
+            throw new ValidationException("Ошибка во времени бронирования: " +
+                    "время начала не может совпадать с временем окончания. ");
     }
 
     public void checkPages(Integer fromElement, Integer size) {

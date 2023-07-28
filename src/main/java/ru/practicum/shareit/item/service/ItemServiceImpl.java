@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingItemDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
@@ -23,7 +24,6 @@ import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -104,7 +104,7 @@ class ItemServiceImpl implements ItemService {
         log.trace("Завершение вызова метода delete");
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public List<ItemDto> getAllUserItems(Long userId) {
         log.debug("Вызов метода getAllUserItems с userId = {}", userId);
@@ -143,7 +143,7 @@ class ItemServiceImpl implements ItemService {
         return result;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public List<ItemDto> search(String text) {
         log.debug("Вызов метода search");

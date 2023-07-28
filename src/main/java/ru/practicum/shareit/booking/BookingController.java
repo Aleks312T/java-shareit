@@ -11,7 +11,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.List;
 
-@Valid
 @Validated
 @RestController
 @RequestMapping(path = "/bookings")

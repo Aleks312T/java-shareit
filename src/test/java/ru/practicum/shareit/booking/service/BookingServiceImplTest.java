@@ -126,10 +126,31 @@ public class BookingServiceImplTest {
                 .start(start)
                 .end(end)
                 .build();
-        Long user2Id = user2.getId();
+
+        Mockito
+                .when(userRepository.findById(user2.getId()))
+                .thenReturn(Optional.of(user2));
 
         Assertions.assertThrows(ObjectNotFoundException.class,
-                () -> bookingService.create(user2Id, bookingDto));
+                () -> bookingService.create(user2.getId(), bookingDto));
+    }
+
+    @Test
+    void testAddNewSameOwner() {
+        BookingDtoInput input = BookingDtoInput.builder()
+                .itemId(item1.getId())
+                .start(start)
+                .end(end)
+                .build();
+        Mockito
+                .when(itemRepository.findById(item1.getId()))
+                .thenReturn(Optional.of(item1));
+        Mockito
+                .when(userRepository.findById(user1.getId()))
+                .thenReturn(Optional.of(user1));
+
+        Assertions.assertThrows(ObjectNotFoundException.class,
+                () -> bookingService.create(user1.getId(), input));
         Mockito.verifyNoMoreInteractions(itemRepository);
     }
 
@@ -163,6 +184,42 @@ public class BookingServiceImplTest {
                 .itemId(item1.getId())
                 .start(start.plusHours(1))
                 .end(end)
+                .build();
+        Long user2Id = user2.getId();
+
+        Mockito
+                .when(userRepository.findById(user2Id))
+                .thenReturn(Optional.of(user2));
+
+        Assertions.assertThrows(ValidationException.class,
+                () -> bookingService.create(user2Id, bookingDto));
+        Mockito.verifyNoMoreInteractions(itemRepository);
+    }
+
+    @Test
+    void testAddNewStartSameAsEnd() {
+        BookingDtoInput bookingDto = BookingDtoInput.builder()
+                .itemId(item1.getId())
+                .start(start.plusHours(1))
+                .end(start.plusHours(1))
+                .build();
+        Long user2Id = user2.getId();
+
+        Mockito
+                .when(userRepository.findById(user2Id))
+                .thenReturn(Optional.of(user2));
+
+        Assertions.assertThrows(ValidationException.class,
+                () -> bookingService.create(user2Id, bookingDto));
+        Mockito.verifyNoMoreInteractions(itemRepository);
+    }
+
+    @Test
+    void testAddNewEndBeforeNow() {
+        BookingDtoInput bookingDto = BookingDtoInput.builder()
+                .itemId(item1.getId())
+                .start(start.minusYears(1))
+                .end(end.minusYears(1))
                 .build();
         Long user2Id = user2.getId();
 

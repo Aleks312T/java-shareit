@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exceptions.IncorrectParameterException;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -21,7 +22,6 @@ import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,7 +59,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ItemRequestFullDto> getAll(Long userId) {
         log.debug("Вызов метода getAll с userId = {}", userId);
         checkUserId(userId);
@@ -71,7 +71,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ItemRequestFullDto> getSort(Long userId, Integer from, Integer size) {
         log.debug("Вызов метода getSort с userId = {}", userId);
         if (from % size != 0) {
@@ -87,7 +87,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public ItemRequestFullDto getById(Long userId, Long requestId) {
         log.debug("Вызов метода getById с userId = {}, requestId = {}", userId, requestId);
         checkUserId(userId);

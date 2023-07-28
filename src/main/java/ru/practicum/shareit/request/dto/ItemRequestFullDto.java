@@ -26,5 +26,5 @@ public class ItemRequestFullDto {
     @NotNull
     private LocalDateTime created;
 
-    List<ItemDto> items;
+    private List<ItemDto> items;
 }
