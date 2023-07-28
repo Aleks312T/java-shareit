@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingItemDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
@@ -19,10 +20,10 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,8 @@ class ItemServiceImpl implements ItemService {
 
     private final BookingRepository bookingRepository;
 
+    private final ItemRequestRepository itemRequestRepository;
+
     @Transactional
     @Override
     public ItemDto create(Long userId, ItemDto itemDto) {
@@ -50,6 +53,12 @@ class ItemServiceImpl implements ItemService {
         User user = checkUser(userId);
         Item item = ItemMapper.fromItemDto(itemDto);
         item.setOwner(user);
+        Long itemRequestId = itemDto.getRequestId();
+        if (itemRequestId != null) {
+            item.setRequest(itemRequestRepository.findById(itemRequestId)
+                    .orElseThrow(() ->
+                            new ObjectNotFoundException("Запрос с Id = " + itemRequestId + " не найден")));
+        }
         item = itemRepository.save(item);
         log.trace("Создан предмет с id = {}", item.getId());
         return ItemMapper.toItemDto(item);
@@ -95,7 +104,7 @@ class ItemServiceImpl implements ItemService {
         log.trace("Завершение вызова метода delete");
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public List<ItemDto> getAllUserItems(Long userId) {
         log.debug("Вызов метода getAllUserItems с userId = {}", userId);
@@ -134,7 +143,7 @@ class ItemServiceImpl implements ItemService {
         return result;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public List<ItemDto> search(String text) {
         log.debug("Вызов метода search");

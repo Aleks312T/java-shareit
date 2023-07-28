@@ -20,7 +20,14 @@ public class CommentMapper {
     }
 
     public static Comment fromCommentDto(CommentDto commentDto, Item item, User user) {
-        return new Comment(commentDto.getText(), item, user, commentDto.getCreated());
+        return Comment.builder()
+                .id(commentDto.getId())
+                .text(commentDto.getText())
+                .authorName(user)
+                .item(item)
+                .created(commentDto.getCreated())
+                .build();
+        //return new Comment(commentDto.getText(), item, user, commentDto.getCreated());
     }
 
     public static List<CommentDto> fromListComment(List<Comment> input) {

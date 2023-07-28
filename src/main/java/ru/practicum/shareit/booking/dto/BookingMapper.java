@@ -15,14 +15,6 @@ import java.util.stream.Collectors;
 
 @UtilityClass
 public class BookingMapper {
-    public static BookingDtoInput toBookingDtoInput(Booking booking) {
-        return BookingDtoInput.builder()
-                .itemId(booking.getItem().getId())
-                .start(booking.getStart())
-                .end(booking.getEnd())
-                .build();
-    }
-
     public static Booking fromBookingDtoInput(BookingDtoInput bookingDto, Item item, User user, BookingStatus status) {
         LocalDateTime start = bookingDto.getStart();
         LocalDateTime end = bookingDto.getEnd();
@@ -64,28 +56,6 @@ public class BookingMapper {
                 .status(booking.getStatus())
                 .item(ItemMapper.toItemDto(booking.getItem()))
                 .booker(UserMapper.toUserDto(booking.getBooker()))
-                .build();
-    }
-
-    public static Booking fromBookingUserDto(BookingUserDto bookingDto) {
-        LocalDateTime start = bookingDto.getStart();
-        LocalDateTime end = bookingDto.getEnd();
-
-        //Проверка времени
-        if (start == null || end == null) {
-            throw new IncorrectParameterException("Время не может быть null");
-        }
-        if (start.isAfter(end) || start.isEqual(end) || start.isBefore(LocalDateTime.now())) {
-            throw new IncorrectParameterException("Некорректное время");
-        }
-
-        return Booking.builder()
-                .id(null)
-                .start(start)
-                .end(end)
-                .item(ItemMapper.fromItemDto(bookingDto.getItem()))
-                .booker(UserMapper.fromUserDto(bookingDto.getBooker()))
-                .status(BookingStatus.WAITING)
                 .build();
     }
 

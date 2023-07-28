@@ -5,7 +5,4 @@ public class IncorrectParameterException extends RuntimeException {
         super(message);
     }
 
-    public IncorrectParameterException() {
-        super();
-    }
 }

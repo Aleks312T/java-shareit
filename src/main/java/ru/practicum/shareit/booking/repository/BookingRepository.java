@@ -1,6 +1,6 @@
 package ru.practicum.shareit.booking.repository;
 
-
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,29 +12,44 @@ import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    List<Booking> findAllByBookerIdOrderByStartDesc(Long bookerId);
+    List<Booking> findAllByBookerIdOrderByStartDesc(Long bookerId, Pageable pageable);
 
-    List<Booking> findAllByBookerIdAndEndBeforeOrderByStartDesc(Long bookerId, LocalDateTime endBefore);
+    List<Booking> findAllByBookerIdAndEndBeforeOrderByStartDesc(Long bookerId,
+                                                                LocalDateTime endBefore,
+                                                                Pageable pageable);
 
-    List<Booking> findAllByBookerIdAndStartAfterOrderByStartDesc(Long bookerId, LocalDateTime startAfter);
+    List<Booking> findAllByBookerIdAndStartAfterOrderByStartDesc(Long bookerId,
+                                                                 LocalDateTime startAfter,
+                                                                 Pageable pageable);
 
     List<Booking> findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(Long bookerId,
                                                                              LocalDateTime startBefore,
-                                                                             LocalDateTime endAfter);
+                                                                             LocalDateTime endAfter,
+                                                                             Pageable pageable);
 
-    List<Booking> findAllByBookerIdAndStatusOrderByStartDesc(Long bookerId, BookingStatus bookingStatus);
+    List<Booking> findAllByBookerIdAndStatusOrderByStartDesc(Long bookerId,
+                                                             BookingStatus bookingStatus,
+                                                             Pageable pageable);
 
-    List<Booking> findAllByItemOwnerIdOrderByStartDesc(Long bookerId);
+    List<Booking> findAllByItemOwnerIdOrderByStartDesc(Long bookerId,
+                                                       Pageable pageable);
 
-    List<Booking> findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(Long bookerId, LocalDateTime endBefore);
+    List<Booking> findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(Long bookerId,
+                                                                   LocalDateTime endBefore,
+                                                                   Pageable pageable);
 
-    List<Booking> findAllByItemOwnerIdAndStartAfterOrderByStartDesc(Long bookerId, LocalDateTime startAfter);
+    List<Booking> findAllByItemOwnerIdAndStartAfterOrderByStartDesc(Long bookerId,
+                                                                    LocalDateTime startAfter,
+                                                                    Pageable pageable);
 
     List<Booking> findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(Long bookerId,
                                                                                 LocalDateTime startBefore,
-                                                                                LocalDateTime endAfter);
+                                                                                LocalDateTime endAfter,
+                                                                                Pageable pageable);
 
-    List<Booking> findAllByItemOwnerIdAndStatusOrderByStartDesc(Long bookerId, BookingStatus bookingStatus);
+    List<Booking> findAllByItemOwnerIdAndStatusOrderByStartDesc(Long bookerId,
+                                                                BookingStatus bookingStatus,
+                                                                Pageable pageable);
 
     @Query(value = "select * " +
             "FROM bookings " +
@@ -84,6 +99,4 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> getNextBookings(Long ownerId, LocalDateTime startDate);
 
     boolean existsByItemIdAndBookerIdAndStatusAndEndBefore(Long itemId, Long userId, BookingStatus status, LocalDateTime endBefore);
-
-    List<Booking> findAllByItemOwnerIdAndStatus(Long userId, BookingStatus approved);
 }

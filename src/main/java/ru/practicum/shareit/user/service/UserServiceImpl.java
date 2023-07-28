@@ -3,14 +3,14 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exceptions.IncorrectParameterException;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exceptions.ConflictException;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public UserDto get(Long id) {
         log.debug("Вызов метода get с id = {}", id);
         Optional<User> user = userRepository.findById(id);
@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<UserDto> getAll() {
         log.debug("Вызов метода getAll");
         log.trace("Завершение вызова метода getAll");
@@ -67,18 +67,20 @@ public class UserServiceImpl implements UserService {
             throw new ObjectNotFoundException("Пользователь с id = " + id + " не найден");
         } else {
             User newUser = user.get();
-            if (checkUserEmail(newUser.getEmail(), userDto.getId()))
-                throw new IncorrectParameterException("Электронная почта уже занята");
-            if (userDto.getName() != null) {
+            if (!checkUserEmail(userDto.getEmail(), id)) {
+                throw new ConflictException("Электронная почта уже занята");
+            }
+
+            if (userDto.getName() != null && !Objects.equals(userDto.getName(), "")) {
                 newUser.setName(userDto.getName());
             }
-            if (userDto.getEmail() != null) {
+            if (userDto.getEmail() != null && !Objects.equals(userDto.getEmail(), "")) {
                 newUser.setEmail(userDto.getEmail());
             }
             log.trace("Завершение вызова метода update");
-            return UserMapper.toUserDto(userRepository.save(newUser));
+            User result = userRepository.save(newUser);
+            return UserMapper.toUserDto(result);
         }
-
     }
 
     @Override
@@ -89,17 +91,11 @@ public class UserServiceImpl implements UserService {
         log.trace("Завершение вызова метода delete");
     }
 
-    public void checkUserEmail(String email) {
-        log.trace("Вызов метода checkUserEmail с email = {}", email);
-        List<User> sameEmailUsers = userRepository.findByEmailContainingIgnoreCase(email);
-        if (!sameEmailUsers.isEmpty()) {
-            throw new IncorrectParameterException("Электронная почта уже занята");
-        }
-    }
-
     public boolean checkUserEmail(String email, Long id) {
         log.trace("Вызов метода checkUserEmail с email = {}, id = {}", email, id);
         List<User> sameEmailUsers = userRepository.findByEmailContainingIgnoreCase(email);
+        if (sameEmailUsers.isEmpty())
+            return true;
         for (User user : sameEmailUsers) {
             if (!Objects.equals(user.getId(), id)) {
                 return false;
