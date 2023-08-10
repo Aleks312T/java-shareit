@@ -25,10 +25,7 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -51,6 +48,13 @@ class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto create(Long userId, ItemDto itemDto) {
         log.debug("Вызов метода create");
+        if(itemDto.getName() == null || itemDto.getName().equals(""))
+            throw new ValidationException("Отсутствует название предмета");
+        if(itemDto.getDescription() == null || itemDto.getDescription().equals(""))
+            throw new ValidationException("Отсутствует описание предмета");
+        if(itemDto.getAvailable() == null)
+            throw new ValidationException("Отсутствует поле available");
+
         User user = checkUser(userId);
         Item item = ItemMapper.fromItemDto(itemDto);
         item.setOwner(user);
