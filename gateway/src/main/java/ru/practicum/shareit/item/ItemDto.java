@@ -6,7 +6,6 @@ import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -21,10 +20,4 @@ public class ItemDto {
     private Boolean available;
 
     private Long requestId;
-
-//    private BookingItemDto lastBooking;
-//
-//    private BookingItemDto nextBooking;
-
-//    private List<CommentDto> comments;
 }
