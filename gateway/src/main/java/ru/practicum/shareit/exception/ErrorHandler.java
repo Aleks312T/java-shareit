@@ -35,27 +35,6 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleIncorrectParameterException(IncorrectParameterException e) {
-        log.debug("Получен статус 400 BAD_REQUEST {}", e.getMessage(), e);
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleObjectNotFoundException(ObjectNotFoundException e) {
-        log.debug("Получен статус 404 Not found {}", e.getMessage(), e);
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleConflictException(ConflictException e) {
-        log.debug("Получен статус 409 Conflict {}", e.getMessage(), e);
-        return new ErrorResponse(e.getMessage());
-    }
-
     //Обязательно последний обработчик
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

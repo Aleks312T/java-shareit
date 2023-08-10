@@ -34,7 +34,7 @@ public class BookingController {
 	public ResponseEntity<Object> changeStatus(@RequestHeader("X-Sharer-User-Id") Long userId,
 											   @PathVariable Long bookingId,
 											   @RequestParam(value = "approved") String approved) {
-		log.info("смена статуса бронирования Id = {}",bookingId);
+		log.info("смена статуса бронирования Id = {}", bookingId);
 		return bookingClient.changeStatus(userId, bookingId, approved);
 	}
 
