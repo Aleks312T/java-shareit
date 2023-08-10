@@ -22,6 +22,7 @@ import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,6 +77,9 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         log.debug("Вызов метода getSort с userId = {}", userId);
         if (from % size != 0) {
             throw new IncorrectParameterException("Некорректный ввод страниц и размеров");
+        }
+        if (from < 0 || size <= 0) {
+            throw new ValidationException("Некорректный ввод данных");
         }
         Pageable pageable = PageRequest.of(from > 0 ? from / size : 0, size, Sort.by("created").descending());
         Page<ItemRequest> itemRequestPage = itemRequestRepository.findAllByRequestor_IdNot(userId, pageable);

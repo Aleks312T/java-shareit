@@ -34,13 +34,16 @@ public class ItemRequestClient extends BaseClient {
         return get("", userId);
     }
 
-    public ResponseEntity<Object> getAllByPages(Long userId, Integer fromElement, Integer size) {
-        if (fromElement % size != 0) {
+    public ResponseEntity<Object> getAllByPages(Long userId, Integer from, Integer size) {
+        if (from % size != 0) {
             throw new ValidationException("Element index and page size mismatch!");
+        }
+        if (from < 0 || size <= 0) {
+            throw new ValidationException("Некорректный ввод данных");
         }
         Map<String, Object> parameters = Map.of(
                 "size", size,
-                "from", fromElement);
+                "from", from);
         return get("/all?from={from}&size={size}", userId, parameters);
     }
 
