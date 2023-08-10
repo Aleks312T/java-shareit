@@ -48,11 +48,11 @@ class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto create(Long userId, ItemDto itemDto) {
         log.debug("Вызов метода create");
-        if(itemDto.getName() == null || itemDto.getName().equals(""))
+        if (itemDto.getName() == null || itemDto.getName().equals(""))
             throw new ValidationException("Отсутствует название предмета");
-        if(itemDto.getDescription() == null || itemDto.getDescription().equals(""))
+        if (itemDto.getDescription() == null || itemDto.getDescription().equals(""))
             throw new ValidationException("Отсутствует описание предмета");
-        if(itemDto.getAvailable() == null)
+        if (itemDto.getAvailable() == null)
             throw new ValidationException("Отсутствует поле available");
 
         User user = checkUser(userId);
@@ -74,7 +74,7 @@ class ItemServiceImpl implements ItemService {
     public ItemDto get(Long itemId, Long userId) {
         log.debug("Вызов метода get с itemId = {}, userId = {}", itemId, userId);
         Item item = checkItem(itemId);
-        User user = checkUser(userId);
+        checkUser(userId);
 
         ItemDto result = addBookingAndComment(item, userId);
         log.trace("Завершение вызова метода get");
@@ -85,7 +85,7 @@ class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto update(Long userId, Long itemId, ItemDto itemDto) {
         log.debug("Вызов метода update с itemId = {}, userId = {}", itemId, userId);
-        User user = checkUser(userId);
+        checkUser(userId);
         Item result = checkItem(itemId);
         if (itemDto.getName() != null) {
             result.setName(itemDto.getName());
@@ -113,7 +113,7 @@ class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> getAllUserItems(Long userId) {
         log.debug("Вызов метода getAllUserItems с userId = {}", userId);
-        User user = checkUser(userId);
+        checkUser(userId);
         List<Item> items = itemRepository.findAllByOwnerId(userId);
         List<ItemDto> result = new ArrayList<>();
         List<Long> itemsId = items
