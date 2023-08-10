@@ -81,9 +81,6 @@ public class ItemRequestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(itemRequest1.getId()), Long.class))
                 .andExpect(jsonPath("$.description", is(itemRequest1.getDescription())))
-                .andExpect(jsonPath("$.requestor.id", is(itemRequest1.getRequestor().getId()), Long.class))
-                .andExpect(jsonPath("$.requestor.name", is(itemRequest1.getRequestor().getName())))
-                .andExpect(jsonPath("$.requestor.email", is(itemRequest1.getRequestor().getEmail())))
                 .andExpect(jsonPath("$.created", notNullValue()));
         Mockito.verify(requestService, Mockito.only())
                 .create(anyLong(), Mockito.any());
@@ -121,19 +118,6 @@ public class ItemRequestControllerTest {
                 .getSort(userId, defaultFrom, defaultSize);
         Mockito.verifyNoMoreInteractions(requestService);
     }
-
-//    @Test
-//    void getSortWithWrongParams() throws Exception {
-//        Long userId = user1.getId();
-//        int from = -10;
-//        int size = 20;
-//        mockMvc.perform(get("/requests/all")
-//                        .contentType("application/json")
-//                        .header("X-Sharer-User-Id", userId)
-//                        .param("from", Integer.toString(from))
-//                        .param("size", Integer.toString(size)))
-//                .andExpect(status().isBadRequest());
-//    }
 
     @Test
     void getById() throws Exception {

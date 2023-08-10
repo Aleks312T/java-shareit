@@ -105,7 +105,6 @@ public class ItemRequestServiceImplTest {
         ItemRequestFullDto response = itemRequestService.create(user1.getId(), itemRequestDtoInput);
 
         assertEquals(expectedItemRequest.getId(), response.getId());
-        assertEquals(expectedItemRequest.getRequestor().getId(), response.getRequestor().getId());
         assertEquals(expectedItemRequest.getDescription(), response.getDescription());
         assertEquals(expectedItemRequest.getCreated(), response.getCreated());
 

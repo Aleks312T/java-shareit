@@ -59,7 +59,7 @@ public class ItemRequestServiceImplIntegrationTest {
                 );
 
         ItemRequestFullDto actualRequest = itemRequestService.getById(
-                itemRequest.getRequestor().getId(),
+                userDto1.getId(),
                 itemRequest.getId());
 
         assertThat(actualRequest.getId(), equalTo(itemRequest.getId()));
