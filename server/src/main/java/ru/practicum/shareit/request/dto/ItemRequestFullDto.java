@@ -20,8 +20,8 @@ public class ItemRequestFullDto {
     @NotBlank
     private String description;
 
-    @NotNull
-    private User requestor;
+//    @NotNull
+//    private User requestor;
 
     @NotNull
     private LocalDateTime created;

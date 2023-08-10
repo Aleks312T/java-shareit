@@ -24,7 +24,7 @@ public class ItemRequestMapper {
         return ItemRequestFullDto.builder()
                 .id(itemRequest.getId())
                 .description(itemRequest.getDescription())
-                .requestor(itemRequest.getRequestor())
+                //.requestor(itemRequest.getRequestor())
                 .created(itemRequest.getCreated())
                 .items(items)
                 .build();
