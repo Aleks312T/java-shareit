@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.validation.ConstraintViolationException;
-import javax.validation.ValidationException;
+
 
 @RestControllerAdvice
 @Slf4j
@@ -38,7 +38,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleIncorrectParameterException(IncorrectParameterException e) {
-        log.debug("Получен статус 400 Conflict {}", e.getMessage(), e);
+        log.debug("Получен статус 400 BAD_REQUEST {}", e.getMessage(), e);
         return new ErrorResponse(e.getMessage());
     }
 
