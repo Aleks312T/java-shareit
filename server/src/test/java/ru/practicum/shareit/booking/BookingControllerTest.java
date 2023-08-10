@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking;
+package java.ru.practicum.shareit.booking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;
@@ -12,6 +12,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
+import ru.practicum.shareit.booking.BookingController;
 import ru.practicum.shareit.booking.dto.BookingDtoInput;
 import ru.practicum.shareit.booking.dto.BookingUserDto;
 import ru.practicum.shareit.booking.model.BookingStatus;

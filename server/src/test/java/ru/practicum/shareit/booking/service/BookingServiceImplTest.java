@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking.service;
+package java.ru.practicum.shareit.booking.service;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,9 +15,10 @@ import ru.practicum.shareit.booking.dto.BookingUserDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.exceptions.IncorrectParameterException;
-import ru.practicum.shareit.exceptions.ObjectNotFoundException;
-import ru.practicum.shareit.exceptions.ValidationException;
+import ru.practicum.shareit.booking.service.BookingServiceImpl;
+import ru.practicum.shareit.exception.IncorrectParameterException;
+import ru.practicum.shareit.exception.ObjectNotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;

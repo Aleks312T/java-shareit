@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.service;
+package java.ru.practicum.shareit.item.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,11 +10,12 @@ import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.comments.dto.CommentDto;
 import ru.practicum.shareit.comments.model.Comment;
 import ru.practicum.shareit.comments.repository.CommentRepository;
-import ru.practicum.shareit.exceptions.ObjectNotFoundException;
+import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.item.service.ItemServiceImpl;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;

@@ -1,4 +1,4 @@
-package ru.practicum.shareit.user.service;
+package java.ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.user.service.UserServiceImpl;
 
 import static org.junit.jupiter.api.Assertions.*;
 
