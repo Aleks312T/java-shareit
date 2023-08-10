@@ -27,14 +27,14 @@ public class ItemController {
     @PostMapping
     public ResponseEntity<Object> newItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                                           @RequestBody @Validated ItemDto itemDto) {
-        log.trace("добавление предмета");
+        log.trace("Добавление предмета с userId = {}", userId);
         return itemClient.newItem(userId, itemDto);
     }
 
     @GetMapping("/{itemId}")
     public ResponseEntity<Object> getItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                                           @PathVariable Long itemId) {
-        log.trace("получение предмета c id №{}", itemId);
+        log.trace("Получение предмета c Id = {}", itemId);
         return itemClient.getItem(userId, itemId);
     }
 
@@ -46,7 +46,7 @@ public class ItemController {
                                                   @Positive
                                                   @RequestParam (value = "size", defaultValue = "10")
                                                   Long size) {
-        log.trace("вывод всех предметов пользователя c id №{}", userId);
+        log.trace("Вывод всех предметов пользователя c Id = {}", userId);
         return itemClient.getAllItemUsers(userId, from, size);
     }
 
@@ -59,7 +59,7 @@ public class ItemController {
                                              @Positive
                                              @RequestParam(value = "size", defaultValue = "10")
                                              Long size) {
-        log.trace("поиск предмета по имени: {}",text);
+        log.trace("Поиск предмета по имени = {}", text);
         if (!text.isBlank()) {
             return itemClient.searchItem(userId, text, from, size);
         } else {
@@ -70,13 +70,13 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     public ResponseEntity<Object> updateItem(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId,
                                              @RequestBody ItemDto itemDto) {
-        log.trace("обновление предмета c id №{}",itemId);
+        log.trace("Обновление предмета c Id = {}", itemId);
         return itemClient.updateItem(userId, itemId, itemDto);
     }
 
     @DeleteMapping("/{itemId}")
     public void deleteItem(@PathVariable Long itemId) {
-        log.trace("удаление предмета с id №{}",itemId);
+        log.trace("Удаление предмета с Id = {}", itemId);
         itemClient.deleteItem(itemId);
     }
 
@@ -84,7 +84,7 @@ public class ItemController {
     public ResponseEntity<Object> postComment(@RequestHeader("X-Sharer-User-Id") Long userId,
                                               @PathVariable Long itemId,
                                               @RequestBody @Valid CommentDto commentDto) {
-        log.trace("Добавление комментария к предмету с id №{}",itemId);
+        log.trace("Добавление комментария к предмету с Id = {}", itemId);
         return itemClient.postComment(userId, itemId, commentDto);
     }
 

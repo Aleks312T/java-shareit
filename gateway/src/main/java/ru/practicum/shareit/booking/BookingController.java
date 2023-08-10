@@ -2,9 +2,7 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.ValidationException;
@@ -13,7 +11,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
-@Controller
+@RestController
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
 @Slf4j
@@ -24,7 +22,7 @@ public class BookingController {
 	@PostMapping
 	public ResponseEntity<Object> newBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
 											 @RequestBody @Valid BookItemRequestDto bookingDtoIn) {
-		log.trace("создание бронирования");
+		log.info("Создание бронирования с userId = {}", userId);
 		if (bookingDtoIn.getStart().isAfter(bookingDtoIn.getEnd()) ||
 				bookingDtoIn.getStart().isEqual(bookingDtoIn.getEnd())) {
 			throw new ValidationException("время бронирования указано некорректно");
@@ -36,7 +34,7 @@ public class BookingController {
 	public ResponseEntity<Object> changeStatus(@RequestHeader("X-Sharer-User-Id") Long userId,
 											   @PathVariable Long bookingId,
 											   @RequestParam(value = "approved") String approved) {
-		log.trace("смена статуса бронирования id №{}",bookingId);
+		log.info("смена статуса бронирования Id = {}",bookingId);
 		return bookingClient.changeStatus(userId, bookingId, approved);
 	}
 
@@ -49,13 +47,6 @@ public class BookingController {
 				.orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
 		log.info("Get booking with state {}, userId = {}, from = {}, size = {}", stateParam, userId, from, size);
 		return bookingClient.getBookings(userId, state, from, size);
-	}
-
-	@PostMapping
-	public ResponseEntity<Object> bookItem(@RequestHeader("X-Sharer-User-Id") long userId,
-			@RequestBody @Valid BookItemRequestDto requestDto) {
-		log.info("Creating booking {}, userId = {}", requestDto, userId);
-		return bookingClient.newBooking(userId, requestDto);
 	}
 
 	@GetMapping("/{bookingId}")
