@@ -162,7 +162,7 @@ class UserServiceImplTest {
         userDto.setEmail(user2.getEmail());
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user1));
-        when(userRepository.findByEmailContainingIgnoreCase(any())).thenReturn(List.of(user1, user2));
+        when(userRepository.findByEmail(any())).thenReturn(List.of(user1, user2));
 
         Exception exception = assertThrows(
                 ConflictException.class, () -> userService.update(user1.getId(), userDto));

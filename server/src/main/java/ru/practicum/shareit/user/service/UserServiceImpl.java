@@ -93,7 +93,7 @@ public class UserServiceImpl implements UserService {
 
     public boolean checkUserEmail(String email, Long id) {
         log.trace("Вызов метода checkUserEmail с email = {}, id = {}", email, id);
-        List<User> sameEmailUsers = userRepository.findByEmailContainingIgnoreCase(email);
+        List<User> sameEmailUsers = userRepository.findByEmail(email);
         if (sameEmailUsers.isEmpty())
             return true;
         for (User user : sameEmailUsers) {
